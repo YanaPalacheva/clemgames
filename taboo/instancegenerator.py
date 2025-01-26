@@ -3,7 +3,7 @@ The script uses either ConceptNet or the OpenAI API to retrieve or generate thes
 
 usage:
 python3 instancegenerator.py
-Creates instance.json file in ./in
+Creates instance.json file in ./in (or instance_filename set in __main__)
 
 """
 import os
@@ -97,5 +97,5 @@ if __name__ == '__main__':
 
     generator = TabooGameInstanceGenerator(language=args.language)
 
-    in_filename = f"instances_{VERSION}_{args.language}_{args.mode}.json"
-    generator.generate(filename=in_filename, mode=args.mode)
+    instance_filename = f"instances_{VERSION}_{args.language}_{args.mode}.json"
+    generator.generate(filename=instance_filename, mode=args.mode)
