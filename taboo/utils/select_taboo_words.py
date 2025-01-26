@@ -59,7 +59,9 @@ import json
 import pandas as pd
 import spacy
 
-nlp = spacy.load("en_core_web_sm")  # download with `python -m spacy download en_core_web_sm
+from .helpers import load_spacy_model
+
+nlp = load_spacy_model("en_core_web_sm")  # download with `python -m spacy download en_core_web_sm
 
 UNIGRAMS = "resources/target_words/en/unigram_freq.csv"
 TAGGED_UNIGRAMS = "resources/target_words/en/tagged_unigrams.json"

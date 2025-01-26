@@ -7,3 +7,12 @@ See the game specific README files for details on each game and the [framework d
 * mm_mapworld & variants (multimodal)
 * chatgame (slurk)
 * cloudgame (multimodal)
+
+### HOW-TOs
+
+#### ...run or debug `_game_/instancegenerator.py`
+The script need to be able to import GameInstanceGenerator from the clembench code. 
+We need to show it the path: `PYTHONPATH=/absolute/path/to/clembench`
+
+* If you run it from the terminal: run setup_path.sh first
+* If you're using PyCharm and run/debug it via GUI: Edit Configurations -> Environment Variables -> add `PYTHONPATH=/absolute/path/to/clembench`

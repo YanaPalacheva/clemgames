@@ -1,0 +1,4 @@
+# English
+nltk==3.8.1 # Taboo
+spacy==3.7.4 # Taboo
+# Russian

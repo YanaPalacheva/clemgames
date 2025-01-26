@@ -23,6 +23,8 @@ After a random selection from each frequency level, we manually ensure that the 
 The final word lists contain 10 words each.
 We use word frequency as a proxy for the difficulty of a game instance.
 
+TODO: refer language-specific content to a separate md page
+
 ### Evaluation
 
 We measure the following metrics at the episode-level:
