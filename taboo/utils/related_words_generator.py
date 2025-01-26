@@ -1,10 +1,12 @@
+import json
+from pathlib import Path
+
 import requests
-import spacy
 import openai
 import logging
 
-from .select_taboo_words import is_function_word
-from .helpers import load_spacy_model
+from taboo.utils.en.select_taboo_words import is_function_word
+from taboo.utils.helpers import load_spacy_model
 
 logger = logging.getLogger(__name__)
 
@@ -13,16 +15,23 @@ class RelatedWordGenerator:
         self.language = language
         self.n_related_words = n_related_words
         self.openai_api_key = openai_api_key
-        self.tagger = self.load_spacy_model()
+        self.tagger = self.load_tagger()
 
-    def manual(self):
-        if self.language == 'en':
+        if language == 'ru':
+            source = Path(__file__).resolve().parents[1] / "resources" / "target_words" / "ru" / "related_words.json"
+            self.ru_manual_related_words = json.loads(source.read_text(encoding="utf-8"))
+
+    def manual(self, word):
+        if self.language == 'ru':
+            words = self.ru_manual_related_words.get(word, [])
+            if len(words) < self.n_related_words:
+                print(f'{len(words)} related words found for word {word}! {self.n_related_words} words are expected.')
+            return words
+        else:
             print(f"Manual node: related words should be added directly to the instances*.json file")
             return []
-        elif self.language == 'ru':
-            pass # todo implement
 
-    def load_spacy_model(self):
+    def load_tagger(self):
         """Load the appropriate spaCy model for the specified language."""
         try:
             if self.language == "ru":
