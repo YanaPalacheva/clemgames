@@ -11,6 +11,7 @@ import random
 import argparse
 
 from utils.related_words_generator import RelatedWordGenerator
+from utils.helpers import load_language_config
 from clemcore.clemgame import GameInstanceGenerator
 
 N_INSTANCES = 20  # how many different target words
@@ -31,8 +32,11 @@ class TabooGameInstanceGenerator(GameInstanceGenerator):
         super().__init__(os.path.dirname(__file__))
         self.n = N_RELATED_WORDS
         self.language = language
+        self.config = load_language_config(language)
         self.related_word_generator = RelatedWordGenerator(
-            language=language, n_related_words=N_RELATED_WORDS, openai_api_key=OPENAI_API_KEY
+            language=language,
+            n_related_words=N_RELATED_WORDS,
+            openai_api_key=OPENAI_API_KEY,
         )
 
     def setup_experiment(self, frequency):
@@ -40,16 +44,16 @@ class TabooGameInstanceGenerator(GameInstanceGenerator):
         experiment = self.add_experiment(f"{frequency}_{self.language}")
         experiment["max_turns"] = N_GUESSES
         experiment["describer_initial_prompt"] = self.load_template(
-            f"resources/initial_prompts/{self.language}/initial_describer"
+            os.path.join(self.config["initial_prompts_path"], "initial_describer")
         )
         experiment["guesser_initial_prompt"] = self.load_template(
-            f"resources/initial_prompts/{self.language}/initial_guesser"
+            os.path.join(self.config["initial_prompts_path"], "initial_guesser")
         )
         return experiment
 
     def on_generate(self, mode):
         # Prepare related word generation
-        word_lists = self.load_json(f"resources/target_words/{self.language}/taboo_word_lists.json")
+        word_lists = self.load_json(self.config["word_list_path"])
 
         for frequency in ["high", "medium", "low"]:
             print(f"Sampling from freq: {frequency}")
@@ -74,6 +78,7 @@ class TabooGameInstanceGenerator(GameInstanceGenerator):
                 game_instance = self.add_game_instance(experiment, target_id)
                 game_instance["target_word"] = target
                 game_instance["related_word"] = related_words
+                game_instance['lang'] = self.language
                 target_id += 1
 
     def generate_related_words(self, target, mode):
