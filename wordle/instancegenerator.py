@@ -4,23 +4,24 @@ Creates files in ./instances
 """
 import logging
 import os
+import argparse
 
 from clemcore.clemgame import GameInstanceGenerator
 
 from wordle.utils.instance_utils import InstanceUtils
 
-LANGUAGE = "en"
 
 logger = logging.getLogger(__name__)
-GAME_NAME = "wordle"
+
+VERSION = "v2.0"
 # SEED = "17"  # seed for old/v1.6 instances
 SEED = "42"
 
 class WordleGameInstanceGenerator(GameInstanceGenerator):
     """Generate instances for wordle."""
-    def __init__(self, game_name):
+    def __init__(self, language: str):
         super().__init__(os.path.dirname(os.path.abspath(__file__)))
-        self.game_name = game_name
+        self.language = language
 
     def load_instances(self):
         return self.load_json("in/instances")
@@ -50,12 +51,12 @@ class WordleGameInstanceGenerator(GameInstanceGenerator):
         # load the variants configuration file:
         self.experiment_config = self.load_json("resources/config.json")
         # load response keywords for the specified language:
-        self._setresponseformatkeywords(LANGUAGE)
+        self._setresponseformatkeywords(self.language)
 
         for variant, variant_config in self.experiment_config.items():
             print(f"Creating instance JSON for wordle variant '{variant}' with config: {variant_config}")
             # generate variant instances and store them:
-            self.on_generate(filename, variant, variant_config)
+            self.on_generate(filename, variant, variant_config)  # todo: filenames!
             # reset the instance attribute to assure separated variant instance files:
             self.instances = dict(experiments=list())
 
@@ -72,9 +73,9 @@ class WordleGameInstanceGenerator(GameInstanceGenerator):
             os.path.dirname(os.path.abspath(__file__)),
             variant_config,
             variant,
-            LANGUAGE)
+            self.language)
 
-        target_words_test_dict = self.instance_utils.select_target_words(SEED)
+        target_words_test_dict = self.instance_utils.select_target_words(SEED)  # todo: do we need diff seed for ru?
 
         word_difficulty = list(target_words_test_dict.keys())
 
@@ -97,4 +98,11 @@ class WordleGameInstanceGenerator(GameInstanceGenerator):
 
 
 if __name__ == "__main__":
-    WordleGameInstanceGenerator(GAME_NAME).generate()                
+    parser = argparse.ArgumentParser(description="Generate Wordle game instances.")
+    parser.add_argument("-l", "--language", default="en", help="Language for the game instances.")
+
+    args = parser.parse_args()
+    generator = WordleGameInstanceGenerator(args.variant, language=args.language)
+
+    instance_filename = f"instances_{VERSION}_{args.language}"
+    generator.generate(filename=instance_filename, mode=args.mode)
