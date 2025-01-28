@@ -9,14 +9,7 @@ from clemcore.clemgame.metrics import METRIC_ABORTED, METRIC_SUCCESS, METRIC_LOS
     METRIC_REQUEST_COUNT_VIOLATED, METRIC_REQUEST_COUNT_PARSED, METRIC_REQUEST_SUCCESS, BENCH_SCORE
 from clemcore.utils import file_utils, string_utils
 
-import nltk
-from nltk.corpus import stopwords
-from nltk.stem.snowball import SnowballStemmer
-
-nltk.download('stopwords', quiet=True)
-EN_STOPWORDS = stopwords.words('english')
-
-EN_STEMMER = SnowballStemmer("english")
+from utils.helpers import load_language_config, get_stopwords_and_stemmer
 
 logger = logging.getLogger(__name__)
 
@@ -44,38 +37,6 @@ class WordDescriber(Player):
             raise Exception("We should not be here...")
 
 
-def check_clue(clue: str, target_word: str, related_words: List[str],
-               stemmer=EN_STEMMER, return_clue=False) -> Union[Tuple[str, List[Dict]], List[Dict]]:
-    clue = clue.replace("CLUE:", "")
-    clue = clue.strip()
-    clue = clue.lower()
-    clue = string_utils.remove_punctuation(clue)
-    clue_words = clue.split(" ")
-    clue_words = [clue_word for clue_word in clue_words if clue_word not in EN_STOPWORDS]
-    clue_word_stems = [stemmer.stem(clue_word) for clue_word in clue_words]
-    errors = []
-    target_word_stem = stemmer.stem(target_word)
-    related_word_stems = [stemmer.stem(related_word) for related_word in related_words]
-
-    for clue_word, clue_word_stem in zip(clue_words, clue_word_stems):
-        if target_word_stem == clue_word_stem:
-            errors.append({
-                "message": f"Target word '{target_word}' (stem={target_word_stem}) "
-                           f"is similar to clue word '{clue_word}' (stem={clue_word_stem})",
-                "type": 0
-            })
-        for related_word, related_word_stem in zip(related_words, related_word_stems):
-            if related_word_stem == clue_word_stem:
-                errors.append({
-                    "message": f"Related word '{related_word}' (stem={related_word_stem}) "
-                               f"is similar to clue word '{clue_word}' (stem={clue_word_stem})",
-                    "type": 1
-                })
-    if return_clue:
-        return clue, errors
-    return errors
-
-
 class Taboo(DialogueGameMaster):
     """
     This class implements a taboo game in which player A (the WordDescriber) is describing a
@@ -92,6 +53,8 @@ class Taboo(DialogueGameMaster):
     def _on_setup(self, **game_instance):
         logger.info("_on_setup")
         self.game_instance = game_instance
+        lang = game_instance['lang']
+        self.language_config = load_language_config(lang)
 
         self.target_word = game_instance["target_word"]
         self.related_words = game_instance["related_word"]
@@ -151,12 +114,12 @@ class Taboo(DialogueGameMaster):
             self.log_to_self("valid guess", self.guess_word)
         if player == self.describer:
             # validate response format
-            if not utterance.startswith("CLUE:"):
+            if not utterance.startswith("CLUE:"):  # didn't translate service words in the prompts
                 self.invalid_response = True
                 return False
             self.log_to_self("valid response", "continue")
             # validate clue
-            clue, errors = check_clue(utterance, self.target_word, self.related_words, return_clue=True)
+            clue, errors = self.check_clue(utterance, return_clue=True)
             if errors:
                 error = errors[0]  # highlight single error
                 self.clue_error = error
@@ -180,6 +143,38 @@ class Taboo(DialogueGameMaster):
             # if not correct, then we add the guess and go on; otherwise we will stop immediately
             if self.guess_word != self.target_word:
                 self.add_user_message(self.describer, utterance)
+
+    def check_clue(self, clue: str, return_clue=False) -> Union[Tuple[str, List[Dict]], List[Dict]]:
+
+        stopwords, stemmer = get_stopwords_and_stemmer(self.language_config)
+
+        clue = clue.replace("CLUE:", "").strip().lower()
+        clue = string_utils.remove_punctuation(clue)
+        clue_words = clue.split(" ")
+        clue_words = [clue_word for clue_word in clue_words if clue_word not in stopwords]
+        clue_word_stems = [stemmer.stem(clue_word) for clue_word in clue_words]
+
+        errors = []
+        target_word_stem = stemmer.stem(self.target_word)
+        related_word_stems = [stemmer.stem(related_word) for related_word in self.related_words]
+
+        for clue_word, clue_word_stem in zip(clue_words, clue_word_stems):
+            if target_word_stem == clue_word_stem:
+                errors.append({
+                    "message": f"Target word '{self.target_word}' (stem={target_word_stem}) "
+                               f"is similar to clue word '{clue_word}' (stem={clue_word_stem})",
+                    "type": 0
+                })
+            for related_word, related_word_stem in zip(self.related_words, related_word_stems):
+                if related_word_stem == clue_word_stem:
+                    errors.append({
+                        "message": f"Related word '{related_word}' (stem={related_word_stem}) "
+                                   f"is similar to clue word '{clue_word}' (stem={clue_word_stem})",
+                        "type": 1
+                    })
+        if return_clue:
+            return clue, errors
+        return errors
 
 
 class TabooScorer(GameScorer):

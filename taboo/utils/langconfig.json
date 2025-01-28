@@ -1,5 +1,6 @@
 {
     "en": {
+        "full_language": "english",
         "stopwords_source": "nltk",
         "conceptnet_endpoint": "http://api.conceptnet.io/c/en/",
         "initial_prompts_path": "resources/initial_prompts/en/",
@@ -7,6 +8,7 @@
         "spacy_model": "en_core_web_sm"
     },
     "ru": {
+        "full_language": "russian",
         "stopwords_source": "spacy",
         "conceptnet_endpoint": "http://api.conceptnet.io/c/ru/",
         "initial_prompts_path": "resources/initial_prompts/ru/",
