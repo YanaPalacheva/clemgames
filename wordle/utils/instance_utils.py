@@ -3,7 +3,6 @@ import os
 import requests
 import random
 
-from accelerate.commands.config.update import description
 from clemcore.clemgame import GameResourceLocator
 from .dump_categorized_words import create_word_lists
 
@@ -234,19 +233,6 @@ class GameConfigManager:
 
 # WordManager: Manages word categorization and selection (utility class)
 class WordManager:
-    @staticmethod
-    def _categorize_target_words(unigram_freq_sorted_dict, clue_words_dict):
-        n = len(unigram_freq_sorted_dict)
-        ranges = [(0, n // 3), (n // 3, 2 * n // 3), (2 * n // 3, n)]
-        clue_words_keys = set(clue_words_dict.keys())
-
-        def filter_words(start, end):
-            return list(set(word[0] for word in unigram_freq_sorted_dict[start:end]).intersection(clue_words_keys))
-
-        easy_words_list, medium_words_list, hard_words_list = (filter_words(start, end) for start, end in ranges)
-
-        return easy_words_list, medium_words_list, hard_words_list
-
     @staticmethod
     def get_target_word_freq(word_list, freq_dict):
         return {word: freq_dict[word] for word in word_list if word in freq_dict}
