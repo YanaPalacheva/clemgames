@@ -12,8 +12,32 @@
             "guess_agreement_lang": "guess_agreement:",
             "agreement_explanation_lang": "agreement_explanation:",
             "agreement_match_keywords_lang": ["yes", "no"],
-            "official_recognized_words_file_url": "https://raw.githubusercontent.com/3b1b/videos/master/_2022/wordle/data/allowed_words.txt",
-            "word_clues_file_url": "https://www.kaggle.com/datasets/darinhawley/new-york-times-crossword-clues-answers-19932021?select=nytcrosswords.csv",
+            "data_sources": {
+                        "official_words": {
+                            "file_url": "https://raw.githubusercontent.com/3b1b/videos/master/_2022/wordle/data/allowed_words.txt",
+                            "file_name": "official_recognized_words.txt",
+                            "file_source": "direct",
+                            "description": "Allowed Wordle words"
+                        },
+                        "word_clues": {
+                            "file_url": "darinhawley/new-york-times-crossword-clues-answers-19932021",
+                            "file_name": "nytcrosswords.csv",
+                            "file_source": "kaggle",
+                            "description": "Word Clues"
+                        },
+                        "unigram_freq": {
+                            "file_url": "rtatman/english-word-frequency",
+                            "file_name": "unigram_freq.csv",
+                            "file_source": "kaggle",
+                            "description": "Uni-gram frequency data"
+                        },
+                        "target_words": {
+                            "file_url": "https://raw.githubusercontent.com/3b1b/videos/refs/heads/master/_2022/wordle/data/possible_words.txt",
+                            "file_name": "wordle_target_words.txt",
+                            "file_source": "direct",
+                            "description": "Wordle target (possible) words"
+                        }
+            },
             "error_prompt_text": {
                 "INVALID_WORD_LENGTH": "The guess should have exactly 5 letters.",
                 "INVALID_WORD": "The guess should contain only letters.",
@@ -39,7 +63,9 @@
             "guess_agreement_lang": "guess_agreement:",
             "agreement_explanation_lang": "agreement_explanation:",
             "agreement_match_keywords_lang": ["да", "нет"],
-           "error_prompt_text": {
+            "official_words_filename": "",
+            "word_clues_filename": "",
+            "error_prompt_text": {
                 "INVALID_WORD_LENGTH": "В догадке должно быть ровно 5 букв.",
                 "INVALID_WORD": "Догадка должна состоять только из букв.",
                 "NOT_VALID_WORD_FOR_GAME": "Твоя догадка не является разрешённым словом в этой игре.",

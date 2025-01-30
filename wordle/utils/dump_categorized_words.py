@@ -1,4 +1,5 @@
 import logging
+import numpy as np
 
 import clemcore.clemgame
 from clemcore.utils import file_utils
@@ -124,6 +125,71 @@ def start_word_categorization():
         "games/wordle/resources/hard_words.txt",
     )
 
+# separating start_word_categorization into two sections to reuse in InstanceUtils:
+# read_files AND create_word_lists (simplified, from old instance_utils.py)
+
+def read_files():
+    unigram_freq_file = "unigram_freq.csv"
+    all_possible_wordle_words_files = "wordle_recognized_english_words.txt"
+    target_words_file = "wordle_target_words.txt"
+    clue_file = "nytcrosswords.csv"
+
+    unigram_freq = read_file_contents(unigram_freq_file, file_ext="csv")
+    # all_wordle_words = read_file_contents(all_possible_wordle_words_files)
+    target_words = read_file_contents(target_words_file)
+    clue_words = read_file_contents(clue_file, file_ext="csv")
+
+def create_word_lists(unigram_freq: {}, target_words: [], clue_words: {}, resource_path: str):
+    target_freq_dict = get_target_word_freq(target_words, unigram_freq)
+    unigram_freq_sorted_dict = sorted(target_freq_dict.items(), key=lambda x: x[1])
+    print(f"Unigram Frequency:: Min = {unigram_freq_sorted_dict[-1][1]},"
+          f" Max = {unigram_freq_sorted_dict[0][1]},"
+          f" Median = {unigram_freq_sorted_dict[int(len(unigram_freq_sorted_dict)/2)][1]}")
+
+    easy_words = unigram_freq_sorted_dict[: int(len(unigram_freq_sorted_dict) / 3)]
+    medium_words = unigram_freq_sorted_dict[
+                   int(len(unigram_freq_sorted_dict) / 3): int(
+                       2 * len(unigram_freq_sorted_dict) / 3
+                   )
+                   ]
+    hard_words = unigram_freq_sorted_dict[
+                 int(2 * len(unigram_freq_sorted_dict) / 3):
+                 ]
+
+    easy_words_list = [word[0] for word in easy_words]
+    medium_words_list = [word[0] for word in medium_words]
+    hard_words_list = [word[0] for word in hard_words]
+
+    clue_words_keys = set(list(clue_words.keys()))
+    easy_words_list = set(easy_words_list).intersection(set(clue_words_keys))
+    easy_words_list = list(easy_words_list)
+
+    medium_words_list = set(medium_words_list).intersection(set(clue_words_keys))
+    medium_words_list = list(medium_words_list)
+
+    hard_words_list = set(hard_words_list).intersection(set(clue_words_keys))
+    hard_words_list = list(hard_words_list)
+
+    write_to_file(
+        easy_words_list,
+        f"{resource_path}/easy_words.txt",
+    )
+    write_to_file(
+        medium_words_list,
+        f"{resource_path}/medium_words.txt",
+    )
+    write_to_file(
+        hard_words_list,
+        f"{resource_path}/hard_words.txt",
+    )
+
+def get_target_word_freq(word_list, freq_dict):
+    data = {}
+    for word in word_list:
+        if word not in freq_dict:
+            continue
+        data[word] = freq_dict[word]
+    return data
 
 
 if __name__ == "__main__":

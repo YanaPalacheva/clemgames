@@ -14,8 +14,7 @@ from wordle.utils.instance_utils import InstanceUtils
 logger = logging.getLogger(__name__)
 
 VERSION = "v2.0"
-# SEED = "17"  # seed for old/v1.6 instances
-SEED = "42"
+# OLD_SEED = "17"  # seed for old/v1.6 instances
 
 class WordleGameInstanceGenerator(GameInstanceGenerator):
     """Generate instances for wordle."""
@@ -37,7 +36,9 @@ class WordleGameInstanceGenerator(GameInstanceGenerator):
         """
         # The relative path is used to force looking for the file in the wordle directory
         lang_keywords = self.load_json("resources/langconfig")
-        self.lang_keywords = lang_keywords[language]    
+        self.lang_keywords = lang_keywords[language]
+        self.lang_keywords.pop("data_sources") # not needed in instance file
+
 
     def generate(self, filename: str ="instances", **kwargs):
         """Generate the game benchmark and store the instances JSON files.
@@ -58,7 +59,10 @@ class WordleGameInstanceGenerator(GameInstanceGenerator):
             # generate variant instances and store them:
             self.on_generate(filename, variant, variant_config)  # todo: filenames!
             # reset the instance attribute to assure separated variant instance files:
-            self.instances = dict(experiments=list())
+            print(f"Processing variant: {variant}, variant_config type: {type(variant_config)}")
+            print(f"Before assignment: type(self.instances) = {type(self.instances)}")
+            self.instances = dict(experiments=list())  # Potential issue line
+            print(f"After assignment: type(self.instances) = {type(self.instances)}")
 
     def on_generate(self, filename: str, variant: str, variant_config: dict):
         """Generate instances for a wordle variant and store them in a separate JSON file.
@@ -75,16 +79,16 @@ class WordleGameInstanceGenerator(GameInstanceGenerator):
             variant,
             self.language)
 
-        target_words_test_dict = self.instance_utils.select_target_words(SEED)  # todo: do we need diff seed for ru?
+        target_words = self.instance_utils.select_target_words()  # use use_seed=OLD_SEED for old/v1.6 instances
 
-        word_difficulty = list(target_words_test_dict.keys())
+        word_difficulty = list(target_words.keys())
 
         for difficulty in word_difficulty:
             experiment_name = f'{difficulty}_words_{variant_config["name"]}'
             experiment = self.add_experiment(experiment_name)
             self.instance_utils.update_experiment_dict(experiment, self.lang_keywords)
 
-            for index, word in enumerate(target_words_test_dict[difficulty]):
+            for index, word in enumerate(target_words[difficulty]):
                 game_instance = self.add_game_instance(experiment, index + 1)
                 self.instance_utils.update_game_instance_dict(
                     game_instance, word, difficulty
@@ -94,7 +98,7 @@ class WordleGameInstanceGenerator(GameInstanceGenerator):
         # print("variant_suffix:", variant_suffix)
         variant_filename = f"{filename}{variant_suffix}.json"
         # store the variant instances file:
-        self.store_file(self.instances, variant_filename, sub_dir="in")
+        # self.store_file(self.instances, variant_filename, sub_dir="in")
 
 
 if __name__ == "__main__":
@@ -102,7 +106,7 @@ if __name__ == "__main__":
     parser.add_argument("-l", "--language", default="en", help="Language for the game instances.")
 
     args = parser.parse_args()
-    generator = WordleGameInstanceGenerator(args.variant, language=args.language)
+    generator = WordleGameInstanceGenerator(language=args.language)
 
     instance_filename = f"instances_{VERSION}_{args.language}"
-    generator.generate(filename=instance_filename, mode=args.mode)
+    generator.generate(filename=instance_filename)
