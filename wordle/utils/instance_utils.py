@@ -93,7 +93,7 @@ class ResourceManager(GameResourceLocator):
         r = requests.get(url, allow_redirects=True)
         filename = file_config.get("file_name")
         self.store_file(r.content.decode("utf-8"), filename, self.resource_path)
-        print(f"Stored {description} file", self.resource_path)
+        print(f"Stored {description} file: {self.resource_path}/{filename}")
 
     def download_if_missing(self, file_config: {}):
         filename = file_config.get("file_name")
@@ -232,11 +232,8 @@ class GameConfigManager:
 
 
 # WordManager: Manages word categorization and selection (utility class)
+# todo: bring create_word_lists in or move it to dump_categorized_words
 class WordManager:
-    @staticmethod
-    def get_target_word_freq(word_list, freq_dict):
-        return {word: freq_dict[word] for word in word_list if word in freq_dict}
-
     @staticmethod
     def select_target_words(easy_words: [], medium_words: [], hard_words: [],
                             config: dict, seed: str):

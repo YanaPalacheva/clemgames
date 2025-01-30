@@ -59,10 +59,7 @@ class WordleGameInstanceGenerator(GameInstanceGenerator):
             # generate variant instances and store them:
             self.on_generate(filename, variant, variant_config)  # todo: filenames!
             # reset the instance attribute to assure separated variant instance files:
-            print(f"Processing variant: {variant}, variant_config type: {type(variant_config)}")
-            print(f"Before assignment: type(self.instances) = {type(self.instances)}")
             self.instances = dict(experiments=list())  # Potential issue line
-            print(f"After assignment: type(self.instances) = {type(self.instances)}")
 
     def on_generate(self, filename: str, variant: str, variant_config: dict):
         """Generate instances for a wordle variant and store them in a separate JSON file.
@@ -98,7 +95,7 @@ class WordleGameInstanceGenerator(GameInstanceGenerator):
         # print("variant_suffix:", variant_suffix)
         variant_filename = f"{filename}{variant_suffix}.json"
         # store the variant instances file:
-        # self.store_file(self.instances, variant_filename, sub_dir="in")
+        self.store_file(self.instances, variant_filename, sub_dir="in")
 
 
 if __name__ == "__main__":
