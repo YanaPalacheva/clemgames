@@ -52,6 +52,8 @@ class RelatedWordGenerator:
             response.raise_for_status()
             data = response.json()
 
+            # this could have safety checks, like checking for the word being slang
+
             related_words = set()
             for edge in data.get("edges", []):
                 if edge.get("end", {}).get("language") == self.language:

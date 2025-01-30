@@ -9,9 +9,10 @@ Creates instance.json file in ./in (or instance_filename set in __main__)
 import os
 import random
 import argparse
+import nltk
 
 from utils.related_words_generator import RelatedWordGenerator
-from utils.helpers import load_language_config
+# from utils.helpers import load_language_config
 from clemcore.clemgame import GameInstanceGenerator
 
 N_INSTANCES = 20  # how many different target words
@@ -20,7 +21,8 @@ N_RELATED_WORDS = 3
 VERSION = "v2.0"
 
 # Seed for reproducibility
-random.seed(87326423)
+# random.seed(87326423)  # v1 seed
+random.seed(73128361)  # v2.0 seed # todo put in config
 
 # Set up OpenAI API key if using openai
 OPENAI_API_KEY = ""  # Insert your OpenAI API key
@@ -32,7 +34,8 @@ class TabooGameInstanceGenerator(GameInstanceGenerator):
         super().__init__(os.path.dirname(__file__))
         self.n = N_RELATED_WORDS
         self.language = language
-        self.config = load_language_config(language)
+        # self.config = load_language_config(language)
+        self.stemmer = nltk.stem.SnowballStemmer('english')
         self.related_word_generator = RelatedWordGenerator(
             language=language,
             n_related_words=N_RELATED_WORDS,
@@ -68,6 +71,10 @@ class TabooGameInstanceGenerator(GameInstanceGenerator):
                 target = random.choice(word_lists[frequency])
                 word_lists[frequency].remove(target)
 
+                # only use words of length 3 or greater:
+                if len(target) < 3:
+                    continue
+
                 print(f"Retrieving related words for '{target}'")
                 related_words = self.generate_related_words(target, mode)
 
@@ -75,9 +82,14 @@ class TabooGameInstanceGenerator(GameInstanceGenerator):
                     print(f"Skipping '{target}' due to lack of related words.")
                     continue
 
+                # stem words:
+                target_word_stem = self.stemmer.stem(target)
+                related_word_stem = [self.stemmer.stem(related_word) for related_word in related_words]
                 game_instance = self.add_game_instance(experiment, target_id)
                 game_instance["target_word"] = target
                 game_instance["related_word"] = related_words
+                game_instance["target_word_stem"] = target_word_stem
+                game_instance["related_word_stem"] = related_word_stem
                 game_instance['lang'] = self.language
                 target_id += 1
 
