@@ -14,10 +14,10 @@ class InstanceUtils:
         self.game_config_manager = GameConfigManager(self.resource_manager)
         self.game_name = game_name
 
-    def select_target_words(self, populate: bool = False, use_seed: str = ""):
-        # add option to populate the lists first
-        if populate:
-            self.resource_manager.populate_word_lists()
+    def refresh_word_lists(self):
+        self.resource_manager.populate_word_lists()
+
+    def select_target_words(self, use_seed: str = ""):
         # load word lists
         self.resource_manager.load_word_lists()
 
@@ -29,8 +29,8 @@ class InstanceUtils:
                                                      self.resource_manager.common_config,
                                                      seed)
 
-    def update_experiment_dict(self, experiment, lang_keywords):
-        self.game_config_manager.update_experiment_dict(experiment, lang_keywords)
+    def update_experiment_dict(self, experiment):
+        self.game_config_manager.update_experiment_dict(experiment)
 
     def update_game_instance_dict(self, game_instance, word, difficulty):
         self.game_config_manager.update_game_instance_dict(game_instance, word, difficulty)
@@ -43,8 +43,8 @@ class ResourceManager(GameResourceLocator):
         self.language = language
         self.experiment_config = experiment_config
         self.common_config = self.load_json("resources/common_config")
-        langconfig = self.load_json("resources/langconfig")[self.language]
-        self.data_sources = langconfig.pop("data_sources")
+        self.langconfig = self.load_json("resources/langconfig")[self.language]
+        self.data_sources = self.langconfig.pop("data_sources")
         self.resource_path = f"resources/target_words/{self.language}"
 
         self.official_words = []
@@ -117,19 +117,6 @@ class ResourceManager(GameResourceLocator):
         # read file
         return self.read_file_contents(file_config.get("file_name"))
 
-    @staticmethod
-    def custom_processing(filename, content):
-        parsed_data = {}
-
-        if "nytcrosswords.csv" in filename:
-            for record in content:
-                parsed_data[record[1].lower().strip()] = record[2].lower().strip()
-        elif "unigram_freq.csv" in filename:
-            content = content[1:]
-            for word, freq in content:
-                parsed_data[word.lower().strip()] = freq
-        return parsed_data
-
     def read_file_contents(self, filename: str, file_ext: str="txt"):
         loaders = {
             'txt': self.load_file, # better to combine in one strategy-selecting method in the parent class
@@ -137,9 +124,16 @@ class ResourceManager(GameResourceLocator):
             'json': self.load_json # nb: load_json also accepts filenames with no extension
         }
 
+        parsers = {
+            'txt': FileParser.parse_plain,
+            'csv': FileParser.parse_csv,
+            'json': FileParser.parse_json
+        }
+
         file_ext = filename.split(".")[-1]
         if file_ext not in loaders.keys():
             raise ValueError(f'File {filename} extension is not supported e! Must be in {loaders.keys()}')
+
 
         try:
             content = loaders[file_ext](f"{self.resource_path}/{filename}")
@@ -150,17 +144,7 @@ class ResourceManager(GameResourceLocator):
         if not content:
             raise ValueError(f"{filename} is empty!")
 
-        # return value (dict or list)
-        parsed_data = None
-
-        # custom clue processing (EN)
-        # Crosswords Clues are list of lists, each sublist has [date, word, clue], we need word and clue
-        if "nytcrosswords.csv" in filename or "unigram_freq.csv" in filename:
-            parsed_data = self.custom_processing(filename, content)
-        else:
-            parsed_data = content.strip().split("\n")
-            parsed_data = [word.lower().strip() for word in parsed_data]
-
+        parsed_data = parsers[file_ext](content, filename)
         return parsed_data
 
     def populate_word_lists(self):
@@ -176,9 +160,10 @@ class ResourceManager(GameResourceLocator):
             create_word_lists(unigram_freq=unigram_freq, target_words=target_words, clue_words=clue_words,
                               resource_path=self.resource_path)
         else:
-            print(f"Word categorization method not set for language '{self.language}', skipping...")
+            print(f"Wordlist generator method not set for language '{self.language}', skipping...")
 
     def load_word_lists(self):
+        # todo: adapt for russian: integrate the download scripts
         official_words_filename = self.data_sources.get("official_words", "")
         word_clues_filename = self.data_sources.get("word_clues", "")
         self.official_words = self.load_data(official_words_filename)
@@ -210,9 +195,9 @@ class GameConfigManager:
 
         return guesser_prompt, guesser_critic_prompt
 
-    def update_experiment_dict(self, experiment, lang_keywords):
+    def update_experiment_dict(self, experiment):
         experiment["common_config"] = self.resource_manager.common_config
-        experiment["common_config"]["max_word_length"] = lang_keywords["max_word_length"]
+        experiment["common_config"]["max_word_length"] = self.resource_manager.langconfig["max_word_length"]
         experiment["use_clue"] = self.resource_manager.experiment_config["use_clue"]
         experiment["use_critic"] = self.resource_manager.experiment_config["use_critic"]
 
@@ -221,7 +206,7 @@ class GameConfigManager:
             experiment["guesser_critic_prompt"],
         ) = self.read_inital_prompt(experiment["use_clue"], experiment["use_critic"])
 
-        experiment["lang_keywords"] = lang_keywords
+        experiment["lang_keywords"] = self.resource_manager.langconfig
         experiment["lang_keywords"]["official_words_list"] = self.resource_manager.official_words
 
     def update_game_instance_dict(self, game_instance, word, difficulty):
@@ -230,9 +215,43 @@ class GameConfigManager:
         game_instance["target_word_difficulty"] = difficulty
 
 
+# Utility class to parse data files with different extensions
+class FileParser:
+    @staticmethod
+    def custom_processing(filename, content):
+        parsed_data = {}
+
+        if "nytcrosswords.csv" in filename:
+            for record in content:
+                parsed_data[record[1].lower().strip()] = record[2].lower().strip()
+        elif "unigram_freq.csv" in filename:
+            content = content[1:]
+            for word, freq in content:
+                parsed_data[word.lower().strip()] = freq
+        return parsed_data
+
+    @staticmethod
+    def parse_plain(content: str, filename: str) -> []:
+        parsed_data = content.strip().split("\n")
+        parsed_data = [word.lower().strip() for word in parsed_data]
+        return parsed_data
+
+    @staticmethod
+    def parse_csv(content: str, filename: str) -> {}:
+        # custom clue processing (EN)
+        if "nytcrosswords.csv" in filename or "unigram_freq.csv" in filename:
+            return FileParser.custom_processing(filename, content)
+
+    @staticmethod
+    def parse_json(content: dict, filename: str) -> {}:
+        if isinstance(content, dict):
+            return content
+        else:
+            raise ValueError(f"{filename} is not loaded correctly!")
+
 
 # WordManager: Manages word categorization and selection (utility class)
-# todo: bring create_word_lists in or move it to dump_categorized_words
+# todo: bring create_word_lists in or move it to dump_categorized_words?
 class WordManager:
     @staticmethod
     def select_target_words(easy_words: [], medium_words: [], hard_words: [],

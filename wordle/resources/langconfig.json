@@ -29,7 +29,7 @@
                             "file_url": "rtatman/english-word-frequency",
                             "file_name": "unigram_freq.csv",
                             "file_source": "kaggle",
-                            "description": "Uni-gram frequency data"
+                            "description": "Unigram frequency data"
                         },
                         "target_words": {
                             "file_url": "https://raw.githubusercontent.com/3b1b/videos/refs/heads/master/_2022/wordle/data/possible_words.txt",
@@ -57,14 +57,38 @@
             "guess_word_lang": "слово",
             "explanation_lang": "пояснение:",
             "explanataion_details_lang": "детали",
-            "guess_feedback_lang": "обратная_связь:",
+            "guess_feedback_lang": "guess_feedback:",
             "agreement_lang": "обоснование:",
             "agreement_word_lang": "да или нет",
             "guess_agreement_lang": "guess_agreement:",
             "agreement_explanation_lang": "agreement_explanation:",
             "agreement_match_keywords_lang": ["да", "нет"],
-            "official_words_filename": "",
-            "word_clues_filename": "",
+            "data_sources": {
+                      "official_words": {
+                          "file_url": "",
+                          "file_name": "allowed_words.txt",
+                          "file_source": "custom",
+                          "description": "Allowed Wordle words"
+                      },
+                      "word_clues": {
+                          "file_url": "",
+                          "file_name": "clues.json",
+                          "file_source": "custom",
+                          "description": "Word Clues"
+                      },
+                      "unigram_freq": {
+                          "file_url": "http://dict.ruslang.ru/Freq2011.zip",
+                          "file_name": "freqrnc2011.csv",
+                          "file_source": "custom",
+                          "description": "Unigram frequency data"
+                      },
+                      "target_words": {
+                          "file_url": "",
+                          "file_name": "target_words.txt",
+                          "file_source": "custom",
+                          "description": "Wordle target (possible) words"
+                      }
+            },
             "error_prompt_text": {
                 "INVALID_WORD_LENGTH": "В догадке должно быть ровно 5 букв.",
                 "INVALID_WORD": "Догадка должна состоять только из букв.",

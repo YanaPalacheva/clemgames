@@ -18,9 +18,10 @@ VERSION = "v2.0"
 
 class WordleGameInstanceGenerator(GameInstanceGenerator):
     """Generate instances for wordle."""
-    def __init__(self, language: str):
+    def __init__(self, language: str, refresh: bool):
         super().__init__(os.path.dirname(os.path.abspath(__file__)))
         self.language = language
+        self.refresh = refresh
 
     def load_instances(self):
         return self.load_json("in/instances")
@@ -52,12 +53,12 @@ class WordleGameInstanceGenerator(GameInstanceGenerator):
         # load the variants configuration file:
         self.experiment_config = self.load_json("resources/config.json")
         # load response keywords for the specified language:
-        self._setresponseformatkeywords(self.language)
+        # self._setresponseformatkeywords(self.language)
 
         for variant, variant_config in self.experiment_config.items():
             print(f"Creating instance JSON for wordle variant '{variant}' with config: {variant_config}")
             # generate variant instances and store them:
-            self.on_generate(filename, variant, variant_config)  # todo: filenames!
+            self.on_generate(filename, variant, variant_config)
             # reset the instance attribute to assure separated variant instance files:
             self.instances = dict(experiments=list())  # Potential issue line
 
@@ -76,6 +77,9 @@ class WordleGameInstanceGenerator(GameInstanceGenerator):
             variant,
             self.language)
 
+        if self.refresh:
+            self.instance_utils.refresh_word_lists()
+
         target_words = self.instance_utils.select_target_words()  # use use_seed=OLD_SEED for old/v1.6 instances
 
         word_difficulty = list(target_words.keys())
@@ -83,7 +87,7 @@ class WordleGameInstanceGenerator(GameInstanceGenerator):
         for difficulty in word_difficulty:
             experiment_name = f'{difficulty}_words_{variant_config["name"]}'
             experiment = self.add_experiment(experiment_name)
-            self.instance_utils.update_experiment_dict(experiment, self.lang_keywords)
+            self.instance_utils.update_experiment_dict(experiment)
 
             for index, word in enumerate(target_words[difficulty]):
                 game_instance = self.add_game_instance(experiment, index + 1)
@@ -101,9 +105,10 @@ class WordleGameInstanceGenerator(GameInstanceGenerator):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate Wordle game instances.")
     parser.add_argument("-l", "--language", default="en", help="Language for the game instances.")
+    parser.add_argument("-r", "--refresh", default=False, help="Flag to refresh all sources for word lists.")
 
     args = parser.parse_args()
-    generator = WordleGameInstanceGenerator(language=args.language)
+    generator = WordleGameInstanceGenerator(language=args.language, refresh=args.refresh)
 
     instance_filename = f"instances_{VERSION}_{args.language}"
     generator.generate(filename=instance_filename)
