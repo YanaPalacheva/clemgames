@@ -5,7 +5,7 @@ from pathlib import Path
 import pandas as pd
 from ruwordnet import RuWordNet
 
-wn = RuWordNet()  # run "ruwordnet download" to load the database (~80mB)
+wn = RuWordNet()  # run "ruwordnet download" in the terminal to load the database (~80mB)
 
 resource_dir = Path(__file__).resolve().parents[2] / "resources" / "target_words" / "ru"
 OUTPUT_FILENAME = resource_dir / "related_words.json"
@@ -33,6 +33,7 @@ def extract_related_words(words: pd.Series) -> Dict[str, List]:
                         related.add(candidate.lower())
 
         if len(related) >= 3:
+            related = [word.strip(')') for word in related] # WordNet artifact
             related_words[word] = list(related)
 
     with open(OUTPUT_FILENAME, 'w') as json_file:
