@@ -48,10 +48,13 @@
 from pathlib import Path
 import random
 import json
-import pandas as pd
+import subprocess
+import sys
 
-from taboo.utils.helpers import load_spacy_model
-from append_related_words import extract_related_words
+import pandas as pd
+import spacy
+
+from get_related_words import extract_related_words
 
 resource_dir = Path(__file__).resolve().parents[2] / "resources" / "target_words" / "ru"
 
@@ -68,10 +71,16 @@ ALLOWED_SPACY_TAGS = ['ADJ', 'NOUN', 'VERB', 'ADV']  # spacy tags
 
 FREQUENCY_CUTOFF_VALUE = 3  # arbitrary number
 
-nlp = load_spacy_model("ru_core_news_sm")
+model_name = "ru_core_news_sm"
+try:
+    nlp = spacy.load(model_name)
+except OSError:
+    print(f"Model '{model_name}' not found. Downloading it now...")
+    subprocess.run([sys.executable, "-m", "spacy", "download", model_name], check=True)
+    nlp = spacy.load(model_name)
 
+# for reproducibility
 random.seed(8373693)
-
 
 def parse_lemma(raw_lemma: str) -> (str, str):
     """

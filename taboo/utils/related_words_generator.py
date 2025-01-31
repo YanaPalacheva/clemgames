@@ -1,53 +1,36 @@
-import json
-from pathlib import Path
-
 import requests
 import openai
 import logging
 
 from taboo.utils.en.select_taboo_words import is_function_word
-from taboo.utils.helpers import load_spacy_model
+from taboo.utils.instance_utils import InstanceUtils
 
 logger = logging.getLogger(__name__)
 
 class RelatedWordGenerator:
-    def __init__(self, language, n_related_words, openai_api_key=None):
+    def __init__(self, instance_utils: InstanceUtils, language: str, n_related_words: int):
+        self.instance_utils = instance_utils
         self.language = language
         self.n_related_words = n_related_words
-        self.openai_api_key = openai_api_key
-        self.tagger = self.load_tagger()
+        self.tagger = self.instance_utils.load_spacy_model()
+        self.manual_related_words = {}
+
+        self._conceptnet_endpoint = f"http://api.conceptnet.io/c/{self.language}"
 
         if language == 'ru':
-            source = Path(__file__).resolve().parents[1] / "resources" / "target_words" / "ru" / "related_words.json"
-            self.ru_manual_related_words = json.loads(source.read_text(encoding="utf-8"))
+            self.manual_related_words = self.instance_utils.load_manual_related_words()
 
-    def manual(self, word):
-        if self.language == 'ru':
-            words = self.ru_manual_related_words.get(word, [])
-            if len(words) < self.n_related_words:
-                print(f'{len(words)} related words found for word {word}! {self.n_related_words} words are expected.')
-            return words
-        else:
-            print(f"Manual node: related words should be added directly to the instances*.json file")
-            return []
+    def manual(self, word, **kwargs):
+        words = self.manual_related_words.get(word, [])
+        if len(words) < self.n_related_words:
+            print(f'{len(words)} related words found for word {word}! {self.n_related_words} words are expected.')
+        return words
 
-    def load_tagger(self):
-        """Load the appropriate spaCy model for the specified language."""
-        try:
-            if self.language == "ru":
-                return load_spacy_model("ru_core_news_sm")
-            elif self.language == "en":
-                return load_spacy_model("en_core_web_sm")
-            else:
-                raise ValueError(f"No spaCy model specified for language: {self.language}")
-        except Exception as e:
-            print(f"Error loading spaCy model for language {self.language}: {e}")
-            return None
-
-    def from_conceptnet(self, word, filter_nouns=False):
+    def from_conceptnet(self, word, **kwargs):
         """Fetch related words from ConceptNet."""
+        filter_nouns = kwargs.get("filter_nouns", False)
         try:
-            url = f"http://api.conceptnet.io/c/{self.language}/{word}/"
+            url = f"{self._conceptnet_endpoint}/{word}/"
             response = requests.get(url)
             response.raise_for_status()
             data = response.json()
@@ -69,7 +52,7 @@ class RelatedWordGenerator:
 
     def is_valid_word(self, candidate, target, filter_nouns):
         """Check if a word is valid (not the target, not multi-word, not a function word)."""
-        if candidate.lower() == target.lower() or " " in candidate or is_function_word(candidate):
+        if candidate.lower() == target.lower() or (" " in candidate) or is_function_word(candidate):
             return False
         if filter_nouns and not self.is_noun(candidate):
             return False
@@ -77,16 +60,12 @@ class RelatedWordGenerator:
 
     def is_noun(self, word):
         """Determine if a word is a noun using spaCy."""
-        if not self.tagger:
-            return False
         doc = self.tagger(word)
         return any(token.pos_ == "NOUN" for token in doc)
 
-    def from_openai(self, target_word):
+    def from_openai(self, target_word, **kwargs):
         """Generate related words using OpenAI."""
-        if not self.openai_api_key:
-            raise ValueError("OpenAI API key is not set.")
-        openai.api_key = self.openai_api_key
+        openai.api_key = self.instance_utils.load_openai_api_key()
         try:
             response = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",

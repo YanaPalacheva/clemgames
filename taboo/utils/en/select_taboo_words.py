@@ -59,10 +59,17 @@ import json
 import pandas as pd
 import spacy
 from pathlib import Path
+import subprocess
+import sys
 
-from taboo.utils.helpers import load_spacy_model
 
-nlp = load_spacy_model("en_core_web_sm")  # download with `python -m spacy download en_core_web_sm
+model_name = "en_core_web_sm"
+try:
+    nlp = spacy.load(model_name)
+except OSError:
+    print(f"Model '{model_name}' not found. Downloading it now...")
+    subprocess.run([sys.executable, "-m", "spacy", "download", model_name], check=True)
+    nlp = spacy.load(model_name)
 
 resource_dir = Path(__file__).resolve().parents[2] / "resources" / "target_words" / "en"
 
