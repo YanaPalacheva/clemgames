@@ -24,7 +24,7 @@ class RelatedWordGenerator:
         words = self.manual_related_words.get(word, [])
         if len(words) < self.n_related_words:
             print(f'{len(words)} related words found for word {word}! {self.n_related_words} words are expected.')
-        return words
+        return words[:self.n_related_words]
 
     def from_conceptnet(self, word, **kwargs):
         """Fetch related words from ConceptNet."""
