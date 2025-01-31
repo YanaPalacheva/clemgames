@@ -58,14 +58,26 @@ PDT – predeterminer
 import json
 import pandas as pd
 import spacy
+from pathlib import Path
+import subprocess
+import sys
 
-nlp = spacy.load("en_core_web_sm")  # download with `python -m spacy download en_core_web_sm
 
-UNIGRAMS = "resources/target_words/en/unigram_freq.csv"
-TAGGED_UNIGRAMS = "resources/target_words/en/tagged_unigrams.json"
-TABOO_WORDS = "resources/target_words/en/taboo_words.json"
-TABOO_WORDS_AND_COUNTS = "resources/target_words/en/taboo_words_and_counts.json"
-TABOO_WORD_LISTS = "resources/target_words/en/taboo_word_lists.json"
+model_name = "en_core_web_sm"
+try:
+    nlp = spacy.load(model_name)
+except OSError:
+    print(f"Model '{model_name}' not found. Downloading it now...")
+    subprocess.run([sys.executable, "-m", "spacy", "download", model_name], check=True)
+    nlp = spacy.load(model_name)
+
+resource_dir = Path(__file__).resolve().parents[2] / "resources" / "target_words" / "en"
+
+UNIGRAMS = resource_dir / "unigram_freq.csv"
+TAGGED_UNIGRAMS = resource_dir / "tagged_unigrams.json"
+TABOO_WORDS = resource_dir / "taboo_words.json"
+TABOO_WORDS_AND_COUNTS = resource_dir / "taboo_words_and_counts.json"
+TABOO_WORD_LISTS = resource_dir / "taboo_word_lists.json"
 
 REMOVE = (
     "IN", "UH", "WRB", "DT", "PRP", "CD", "FW", ".", "WP$", "CC", "WDT", "WP",

@@ -1,0 +1,7 @@
+{
+  "N_INSTANCES": 20,
+  "N_GUESSES": 3,
+  "N_RELATED_WORDS": 3,
+  "SEED": 73128361,
+  "supported_word_frequency": ["high", "medium", "low"]
+}

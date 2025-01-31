@@ -1,0 +1,6 @@
+# English
+nltk==3.8.1
+spacy==3.7.4
+# Russian
+ruwordnet==0.0.6
+libretranslatepy==2.1.4

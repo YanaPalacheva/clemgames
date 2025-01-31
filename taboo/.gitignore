@@ -1,2 +1,4 @@
 records/*
 *.ipynb
+**/*.csv
+**/df*.json
