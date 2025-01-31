@@ -13,7 +13,7 @@ from clemcore.clemgame import GameResourceLocator
 nltk.download('stopwords', quiet=True)
 
 
-# InstanceUtils: Single point of entry combining all functionality.
+# InstanceUtils: handles all resources necessary for the instance generation
 class InstanceUtils(GameResourceLocator):
     def __init__(self, language: str, game_path):
         super().__init__(path=game_path)

@@ -9,7 +9,8 @@ from clemcore.clemgame.metrics import METRIC_ABORTED, METRIC_SUCCESS, METRIC_LOS
     METRIC_REQUEST_COUNT_VIOLATED, METRIC_REQUEST_COUNT_PARSED, METRIC_REQUEST_SUCCESS, BENCH_SCORE
 from clemcore.utils import file_utils, string_utils
 
-from utils.helpers import load_language_config, get_stopwords_and_stemmer
+from taboo.utils.instance_utils import InstanceUtils
+
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +22,7 @@ class WordGuesser(Player):
 
     def _custom_response(self, messages, turn_idx):
         # mock response
+        # multilingual: used in CustomResponseModel, didn't translate
         return f'GUESS: Pear'
 
 
@@ -50,11 +52,13 @@ class Taboo(DialogueGameMaster):
         self.describer_initial_prompt = self.experiment["describer_initial_prompt"]
         self.guesser_initial_prompt = self.experiment["guesser_initial_prompt"]
 
+
     def _on_setup(self, **game_instance):
         logger.info("_on_setup")
         self.game_instance = game_instance
-        lang = game_instance['lang']
-        self.language_config = load_language_config(lang)
+
+        self.utils = InstanceUtils(language=game_instance['lang'],
+                                   game_path=self.game_path)
 
         self.target_word = game_instance["target_word"]
         self.related_words = game_instance["related_word"]
@@ -101,7 +105,7 @@ class Taboo(DialogueGameMaster):
     def _validate_player_response(self, player: Player, utterance: str) -> bool:
         if player == self.guesser:
             # validate response format
-            if not utterance.startswith("GUESS:"):
+            if not utterance.startswith("GUESS:"): # todo multilingual: translate the service prefixes?
                 self.invalid_response = True
                 return False
             self.log_to_self("valid response", "continue")
@@ -146,7 +150,8 @@ class Taboo(DialogueGameMaster):
 
     def check_clue(self, clue: str, return_clue=False) -> Union[Tuple[str, List[Dict]], List[Dict]]:
 
-        stopwords, stemmer = get_stopwords_and_stemmer(self.language_config)
+        stopwords = self.utils.get_stopwords()
+        stemmer = self.utils.get_stemmer()
 
         clue = clue.replace("CLUE:", "").strip().lower()
         clue = string_utils.remove_punctuation(clue)
@@ -279,12 +284,13 @@ class TabooGameBenchmark(GameBenchmark):
 def main():
     # select one experiment and instance
     game_path = os.path.dirname(os.path.abspath(__file__))
-    experiments = file_utils.load_json("in/instances.json", game_path)
+    experiments = file_utils.load_json("in/instances_v2.0_ru_manual.json", game_path)
     experiment_1 = experiments["experiments"][0]
     game_1 = experiment_1["game_instances"][0]
-    master = Taboo("taboo", experiment_1, ["mock", "mock"])
+    master = Taboo("taboo", game_path, experiment_1, ["mock", "mock"])
     master.setup(**game_1)
-    master.play()
+    master.check_clue('test')
+    # master.play()
 
 
 if __name__ == '__main__':
