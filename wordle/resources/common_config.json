@@ -4,6 +4,7 @@
     "max_retry_per_error": {"NOT_VALID_WORD_FOR_GAME": 5},
     "use_error_explanation": true,
     "supported_word_difficulty": ["high_frequency", "medium_frequency", "low_frequency"],
+    "seed_to_select_target_word": "42",
     "number_of_target_words": {
                                 "high_frequency": 10,
                                 "medium_frequency": 20,

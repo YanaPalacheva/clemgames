@@ -12,8 +12,32 @@
             "guess_agreement_lang": "guess_agreement:",
             "agreement_explanation_lang": "agreement_explanation:",
             "agreement_match_keywords_lang": ["yes", "no"],
-            "official_recognized_words_file_url": "https://raw.githubusercontent.com/3b1b/videos/master/_2022/wordle/data/allowed_words.txt",
-            "word_clues_file_url": "https://www.kaggle.com/datasets/darinhawley/new-york-times-crossword-clues-answers-19932021?select=nytcrosswords.csv",
+            "data_sources": {
+                        "official_words": {
+                            "file_url": "https://raw.githubusercontent.com/3b1b/videos/master/_2022/wordle/data/allowed_words.txt",
+                            "file_name": "official_recognized_words.txt",
+                            "file_source": "direct",
+                            "description": "Allowed Wordle words"
+                        },
+                        "word_clues": {
+                            "file_url": "darinhawley/new-york-times-crossword-clues-answers-19932021",
+                            "file_name": "nytcrosswords.csv",
+                            "file_source": "kaggle",
+                            "description": "Word Clues"
+                        },
+                        "unigram_freq": {
+                            "file_url": "rtatman/english-word-frequency",
+                            "file_name": "unigram_freq.csv",
+                            "file_source": "kaggle",
+                            "description": "Unigram frequency data"
+                        },
+                        "target_words": {
+                            "file_url": "https://raw.githubusercontent.com/3b1b/videos/refs/heads/master/_2022/wordle/data/possible_words.txt",
+                            "file_name": "wordle_target_words.txt",
+                            "file_source": "direct",
+                            "description": "Wordle target (possible) words"
+                        }
+            },
             "error_prompt_text": {
                 "INVALID_WORD_LENGTH": "The guess should have exactly 5 letters.",
                 "INVALID_WORD": "The guess should contain only letters.",
@@ -24,6 +48,57 @@
                 "ERROR_RESPONSE_FORMAT": "Guess does not conform to the format rules",
                 "ERROR_GAME_FORMAT": "Guess does not conform to the game rules.",
                 "RETRY": "Please try again."
+            }
+    },
+    "ru": {
+            "max_word_length": 5,
+            "clue_lang": "подсказка:",
+            "guess_lang": "догадка:",
+            "guess_word_lang": "слово",
+            "explanation_lang": "пояснение:",
+            "explanataion_details_lang": "детали",
+            "guess_feedback_lang": "guess_feedback:",
+            "agreement_lang": "обоснование:",
+            "agreement_word_lang": "да или нет",
+            "guess_agreement_lang": "guess_agreement:",
+            "agreement_explanation_lang": "agreement_explanation:",
+            "agreement_match_keywords_lang": ["да", "нет"],
+            "data_sources": {
+                      "official_words": {
+                          "file_url": "",
+                          "file_name": "allowed_words.txt",
+                          "file_source": "custom",
+                          "description": "Allowed Wordle words"
+                      },
+                      "word_clues": {
+                          "file_url": "",
+                          "file_name": "clues.json",
+                          "file_source": "custom",
+                          "description": "Word Clues"
+                      },
+                      "unigram_freq": {
+                          "file_url": "http://dict.ruslang.ru/Freq2011.zip",
+                          "file_name": "freqrnc2011.csv",
+                          "file_source": "custom",
+                          "description": "Unigram frequency data"
+                      },
+                      "target_words": {
+                          "file_url": "",
+                          "file_name": "target_words.txt",
+                          "file_source": "custom",
+                          "description": "Wordle target (possible) words"
+                      }
+            },
+            "error_prompt_text": {
+                "INVALID_WORD_LENGTH": "В догадке должно быть ровно 5 букв.",
+                "INVALID_WORD": "Догадка должна состоять только из букв.",
+                "NOT_VALID_WORD_FOR_GAME": "Твоя догадка не является разрешённым словом в этой игре.",
+                "INVALID_FORMAT": "Отвечай только в этом формате.",
+                "OTHER_ERROR": "Угадай пятибуквенное слово из русского языка.",
+                "OTHER_DETAILS": "Не генерируй никакой другой текст. Пожалуйста, попробуй снова",
+                "ERROR_RESPONSE_FORMAT": "Догадка не соответствует правилам игры",
+                "ERROR_GAME_FORMAT": "Подсказка не соответствует правилам игры.",
+                "RETRY": "Пожалуйста, попробуй снова."
             }
     }
 }

@@ -4,23 +4,24 @@ Creates files in ./instances
 """
 import logging
 import os
+import argparse
 
 from clemcore.clemgame import GameInstanceGenerator
 
 from wordle.utils.instance_utils import InstanceUtils
 
-LANGUAGE = "en"
 
 logger = logging.getLogger(__name__)
-GAME_NAME = "wordle"
-# SEED = "17"  # seed for old/v1.6 instances
-SEED = "42"
+
+VERSION = "v2.0"
+# OLD_SEED = "17"  # seed for old/v1.6 instances
 
 class WordleGameInstanceGenerator(GameInstanceGenerator):
     """Generate instances for wordle."""
-    def __init__(self, game_name):
+    def __init__(self, language: str, refresh: bool):
         super().__init__(os.path.dirname(os.path.abspath(__file__)))
-        self.game_name = game_name
+        self.language = language
+        self.refresh = refresh
 
     def load_instances(self):
         return self.load_json("in/instances")
@@ -36,7 +37,9 @@ class WordleGameInstanceGenerator(GameInstanceGenerator):
         """
         # The relative path is used to force looking for the file in the wordle directory
         lang_keywords = self.load_json("resources/langconfig")
-        self.lang_keywords = lang_keywords[language]    
+        self.lang_keywords = lang_keywords[language]
+        self.lang_keywords.pop("data_sources") # not needed in instance file
+
 
     def generate(self, filename: str ="instances", **kwargs):
         """Generate the game benchmark and store the instances JSON files.
@@ -50,14 +53,14 @@ class WordleGameInstanceGenerator(GameInstanceGenerator):
         # load the variants configuration file:
         self.experiment_config = self.load_json("resources/config.json")
         # load response keywords for the specified language:
-        self._setresponseformatkeywords(LANGUAGE)
+        # self._setresponseformatkeywords(self.language)
 
         for variant, variant_config in self.experiment_config.items():
             print(f"Creating instance JSON for wordle variant '{variant}' with config: {variant_config}")
             # generate variant instances and store them:
             self.on_generate(filename, variant, variant_config)
             # reset the instance attribute to assure separated variant instance files:
-            self.instances = dict(experiments=list())
+            self.instances = dict(experiments=list())  # Potential issue line
 
     def on_generate(self, filename: str, variant: str, variant_config: dict):
         """Generate instances for a wordle variant and store them in a separate JSON file.
@@ -72,18 +75,21 @@ class WordleGameInstanceGenerator(GameInstanceGenerator):
             os.path.dirname(os.path.abspath(__file__)),
             variant_config,
             variant,
-            LANGUAGE)
+            self.language)
 
-        target_words_test_dict = self.instance_utils.select_target_words(SEED)
+        if self.refresh:
+            self.instance_utils.refresh_word_lists()
 
-        word_difficulty = list(target_words_test_dict.keys())
+        target_words = self.instance_utils.select_target_words()  # use use_seed=OLD_SEED for old/v1.6 instances
+
+        word_difficulty = list(target_words.keys())
 
         for difficulty in word_difficulty:
             experiment_name = f'{difficulty}_words_{variant_config["name"]}'
             experiment = self.add_experiment(experiment_name)
-            self.instance_utils.update_experiment_dict(experiment, self.lang_keywords)
+            self.instance_utils.update_experiment_dict(experiment)
 
-            for index, word in enumerate(target_words_test_dict[difficulty]):
+            for index, word in enumerate(target_words[difficulty]):
                 game_instance = self.add_game_instance(experiment, index + 1)
                 self.instance_utils.update_game_instance_dict(
                     game_instance, word, difficulty
@@ -97,4 +103,12 @@ class WordleGameInstanceGenerator(GameInstanceGenerator):
 
 
 if __name__ == "__main__":
-    WordleGameInstanceGenerator(GAME_NAME).generate()                
+    parser = argparse.ArgumentParser(description="Generate Wordle game instances.")
+    parser.add_argument("-l", "--language", default="en", help="Language for the game instances.")
+    parser.add_argument("-r", "--refresh", default=False, help="Flag to refresh all sources for word lists.")
+
+    args = parser.parse_args()
+    generator = WordleGameInstanceGenerator(language=args.language, refresh=args.refresh)
+
+    instance_filename = f"instances_{VERSION}_{args.language}"
+    generator.generate(filename=instance_filename)

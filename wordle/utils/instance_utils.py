@@ -1,40 +1,60 @@
-import random
-import requests
 import os
 
-import zipfile
+import requests
+import random
 
 from clemcore.clemgame import GameResourceLocator
+from .dump_categorized_words import create_word_lists
 
 
-class InstanceUtils(GameResourceLocator):
+# InstanceUtils: Single point of entry combining all functionality.
+class InstanceUtils:
     def __init__(self, game_path, experiment_config, game_name, language):
-        super().__init__(path=game_path)
-        self.experiment_config = experiment_config
+        self.resource_manager = ResourceManager(game_path, language, experiment_config)
+        self.game_config_manager = GameConfigManager(self.resource_manager)
         self.game_name = game_name
+
+    def refresh_word_lists(self):
+        self.resource_manager.populate_word_lists()
+
+    def select_target_words(self, use_seed: str = ""):
+        # load word lists
+        self.resource_manager.load_word_lists()
+
+        seed = self.resource_manager.common_config["seed_to_select_target_word"] if not use_seed else use_seed
+
+        return WordManager.select_target_words(self.resource_manager.easy_words,
+                                                     self.resource_manager.medium_words,
+                                                     self.resource_manager.hard_words,
+                                                     self.resource_manager.common_config,
+                                                     seed)
+
+    def update_experiment_dict(self, experiment):
+        self.game_config_manager.update_experiment_dict(experiment)
+
+    def update_game_instance_dict(self, game_instance, word, difficulty):
+        self.game_config_manager.update_game_instance_dict(game_instance, word, difficulty)
+
+
+# ResourceManager: Handles file loading, storing, and general resource operations.
+class ResourceManager(GameResourceLocator):
+    def __init__(self, game_path, language, experiment_config):
+        super().__init__(path=game_path)
         self.language = language
+        self.experiment_config = experiment_config
         self.common_config = self.load_json("resources/common_config")
         self.langconfig = self.load_json("resources/langconfig")[self.language]
+        self.data_sources = self.langconfig.pop("data_sources")
+        self.resource_path = f"resources/target_words/{self.language}"
 
-    def read_inital_prompt(self, use_clue, use_critic):
-        guesser_prompt = ""
-        guesser_critic_prompt = ""
+        self.official_words = []
+        self.target_words = []
+        self.word_clues_dict = {}
+        self.easy_words = []
+        self.medium_words = []
+        self.hard_words = []
 
-        # Hardcoded the game_name argument in the load_template function to wordle
-        # During the instance creation of wordle_withclue, wordle_withcritic, game_name would be different and that leads to file not found error
-
-        if use_critic:
-            guesser_prompt = self.load_template(f"resources/initial_prompts/{self.language}/guesser_withcritic_prompt")
-            guesser_critic_prompt = self.load_template(f"resources/initial_prompts/{self.language}/critic_prompt")
-        else:
-            if use_clue:
-                guesser_prompt = self.load_template(f"resources/initial_prompts/{self.language}/guesser_withclue_prompt")
-            else:
-                guesser_prompt = self.load_template(f"resources/initial_prompts/{self.language}/guesser_prompt")
-
-        return guesser_prompt, guesser_critic_prompt
-    
-    def download_nytcrosswords(self):
+    def download_kaggle(self, file_config: {}):
         # Requires kaggle authentication for successfully downloading the file; see README.md
         kaggle_credentials = self.load_json("wordle_keys")['kaggle']
         os.environ['KAGGLE_USERNAME'] = kaggle_credentials['username']
@@ -44,201 +64,208 @@ class InstanceUtils(GameResourceLocator):
             print("Please provide your kaggle credentials in the instance_utils.py file\n")
             return
 
-        print("Downloading nytcrosswords...")
+        description = file_config.get("description", "UNKNOWN")
+        print(f"Downloading {description}...")
 
-        fp = f"resources/target_words/{self.language}/"
+        dataset = file_config.get("file_url")
+        filename = file_config.get("file_name")
 
         from kaggle.api.kaggle_api_extended import KaggleApi
         api = KaggleApi()
         api.authenticate()
-        api.dataset_download_files("darinhawley/new-york-times-crossword-clues-answers-19932021", path=fp)
+        api.dataset_download_files(dataset, path=self.resource_path)
 
-        #Unzip the file 
-        with zipfile.ZipFile(fp+"/new-york-times-crossword-clues-answers-19932021.zip","r") as zip_ref:
-            zip_ref.extractall(fp)
-        print("Stored the nytc crosswords clues file", fp)
+        # Unzip the file
+        import zipfile
+        zip_file_path = f"{self.resource_path}/{dataset.split('/')[-1]}.zip"
+        with zipfile.ZipFile(zip_file_path,"r") as zip_ref:
+            zip_ref.extractall(self.resource_path)
 
-    def download_allowed_words(self):
-        print("Downloading wordle recognized words for EN Language...")
-        url = self.langconfig["official_recognized_words_file_url"]
+        if os.path.exists(zip_file_path):
+            os.remove(zip_file_path)
+
+        print(f"Stored the {description} file: {self.resource_path}/{filename}")
+
+    def download_direct(self, file_config: {}):
+        description = file_config.get("description", "UNKNOWN")
+        print(f"Downloading wordle recognized words for language: {self.language}...")
+        url = file_config.get("file_url")
         r = requests.get(url, allow_redirects=True)
-        fp = f"resources/target_words/{self.language}/"
-        self.store_file(r.content.decode("utf-8"), "official_recognized_words.txt", fp)
-        print("Stored the wordle recognized words file", fp)
+        filename = file_config.get("file_name")
+        self.store_file(r.content.decode("utf-8"), filename, self.resource_path)
+        print(f"Stored {description} file: {self.resource_path}/{filename}")
 
-    def read_file_contents(self, filename, file_ext="txt"):
-        if file_ext == "csv":
-            words_dict = {}        
-            try:
-                words_list = self.load_csv(f"resources/{filename}")
-            except FileNotFoundError:
-                #File not available, downloading
-                if filename.endswith("nytcrosswords.csv"):
-                    self.download_nytcrosswords()
-                    words_list = self.load_csv(f"resources/{filename}")
-                else:
-                    print(f"Word clues file {filename} not found, check and download the relevant files")
-                    return []
+    def download_if_missing(self, file_config: {}):
+        filename = file_config.get("file_name")
+        file_source = file_config.get("file_source")
+        # check if file exists
+        file_path = os.path.join(self.resource_path, filename)
+        if os.path.exists(file_path):
+            return
 
-            if "nytcrosswords.csv" in filename:
-                for word in words_list:
-                    words_dict[word[1].lower().strip()] = word[2].lower().strip()
-                return words_dict
+        if self.language == 'en':
+            if file_source == 'kaggle':
+                self.download_kaggle(file_config)
+            elif file_source == 'direct':
+                self.download_direct(file_config)
             else:
-                return words_list
+                raise NotImplementedError(f'No method to download from {file_source} source!')
 
-        elif file_ext == "txt":
-            try:
-                words = self.load_file(f"resources/{filename}")
-            except FileNotFoundError:
-                if filename.endswith("official_recognized_words.txt"):
-                    self.download_allowed_words()
-                    words = self.load_file(f"resources/{filename}")
-                else:
-                    print(f"File {filename} not found")
-                    return []
+    def load_data(self, file_config: {}):
+        # download missing sources
+        self.download_if_missing(file_config)
+        # read file
+        return self.read_file_contents(file_config.get("file_name"))
 
-            words = words.strip()
-            if words:
-                words_list = words.split("\n")
-                words_list = [word.lower().strip() for word in words_list]
-            else:
-                words_list = []
-            return words_list
+    def read_file_contents(self, filename: str, file_ext: str="txt"):
+        loaders = {
+            'txt': self.load_file, # better to combine in one strategy-selecting method in the parent class
+            'csv': self.load_csv,
+            'json': self.load_json # nb: load_json also accepts filenames with no extension
+        }
 
-    def categorize_target_words(self, unigram_freq_sorted_dict, clue_words_dict):
-        easy_words = unigram_freq_sorted_dict[: int(len(unigram_freq_sorted_dict) / 3)]
-        medium_words = unigram_freq_sorted_dict[
-            int(len(unigram_freq_sorted_dict) / 3) : int(
-                2 * len(unigram_freq_sorted_dict) / 3
-            )
-        ]
-        hard_words = unigram_freq_sorted_dict[
-            int(2 * len(unigram_freq_sorted_dict) / 3) :
-        ]
+        parsers = {
+            'txt': FileParser.parse_plain,
+            'csv': FileParser.parse_csv,
+            'json': FileParser.parse_json
+        }
 
-        easy_words_list = [word[0] for word in easy_words]
-        medium_words_list = [word[0] for word in medium_words]
-        hard_words_list = [word[0] for word in hard_words]
+        file_ext = filename.split(".")[-1]
+        if file_ext not in loaders.keys():
+            raise ValueError(f'File {filename} extension is not supported e! Must be in {loaders.keys()}')
 
-        clue_words_keys = set(list(clue_words_dict.keys()))
-        easy_words_list = set(easy_words_list).intersection(set(clue_words_keys))
-        easy_words_list = list(easy_words_list)
 
-        medium_words_list = set(medium_words_list).intersection(set(clue_words_keys))
-        medium_words_list = list(medium_words_list)
+        try:
+            content = loaders[file_ext](f"{self.resource_path}/{filename}")
+        except FileNotFoundError:
+            raise ValueError(f"Couldn't load {filename}.")
 
-        hard_words_list = set(hard_words_list).intersection(set(clue_words_keys))
-        hard_words_list = list(hard_words_list)
+        # make sure content is not empty
+        if not content:
+            raise ValueError(f"{filename} is empty!")
 
-        return easy_words_list, medium_words_list, hard_words_list
+        parsed_data = parsers[file_ext](content, filename)
+        return parsed_data
 
-    def get_target_word_freq(self, word_list, freq_dict):
-        data = {}
-        for word in word_list:
-            if word not in freq_dict:
-                continue
-            data[word] = freq_dict[word]
-        return data
+    def populate_word_lists(self):
+        if self.language == 'en':
+            unigram_freq_file = self.data_sources.get("unigram_freq", "")
+            target_words_file = self.data_sources.get("target_words", "") # not used
+            clue_file = self.data_sources.get("word_clues", "")
 
-    def read_word_lists(self):
-        official_words = []
-        # officially recognized wordle words are downloaded from
-        # https://github.com/3b1b/videos/blob/master/_2022/wordle/data/allowed_words.txt
-        official_words = self.read_file_contents(f"target_words/{self.language}/official_recognized_words.txt")
+            unigram_freq = self.load_data(unigram_freq_file)
+            target_words = self.load_data(target_words_file)
+            clue_words = self.load_data(clue_file)
 
-        # wordle target words are downloaded from
-        # https://github.com/3b1b/videos/blob/master/_2022/wordle/data/possible_words.txt
-        # file_name = self.common_config["target_words_file_name"]
-        # target_words = self.read_file_contents(file_name)
+            create_word_lists(unigram_freq=unigram_freq, target_words=target_words, clue_words=clue_words,
+                              resource_path=self.resource_path)
+        else:
+            print(f"Wordlist generator method not set for language '{self.language}', skipping...")
 
-        # Uni-gram frequency data is downloaded from
-        # https://www.kaggle.com/datasets/rtatman/english-word-frequency
-        # file_name = self.common_config["unigram_freq_file_name"]
-        # unigram_freq_dict = self.read_file_contents(file_name, file_ext="csv")
+    def load_word_lists(self):
+        # todo: adapt for russian: integrate the download scripts
+        official_words_filename = self.data_sources.get("official_words", "")
+        word_clues_filename = self.data_sources.get("word_clues", "")
+        self.official_words = self.load_data(official_words_filename)
+        self.word_clues_dict = self.load_data(word_clues_filename)
 
-        # target_freq_dict = self.get_target_word_freq(target_words, unigram_freq_dict)
-        # unigram_freq_sorted_dict = sorted(target_freq_dict.items(), key=lambda x: x[1])
-
-        # Crosswords Clues are downloaded from
-        # https://www.kaggle.com/datasets/darinhawley/new-york-times-crossword-clues-answers-19932021
-
-        # Crosswords Clues are: List of lists and each sublist has: [date, word, clue]
-        # We are only interested in the word and clue
-        # Data cleanup happens inside the read_file_contents function
-        word_clues_dict = {}
-        word_clues_dict = self.read_file_contents(f"target_words/{self.language}/nytcrosswords.csv", file_ext="csv")
-
-        # Currently the categorized words are read directly from the files
-        #   without doing the categorization during instance generation
-        # Check the file dump_categorized_words.py to see how the
-        #   categorization is done
-        # easy_words_list, medium_words_list, hard_words_list = self._categorize_target_words(unigram_freq_sorted_dict, word_clues_dict)
-        easy_words_list = self.read_file_contents(f"target_words/{self.language}/easy_words.txt")
-        medium_words_list = self.read_file_contents(f"target_words/{self.language}/medium_words.txt")
-        hard_words_list = self.read_file_contents(f"target_words/{self.language}/hard_words.txt")
-
-        if not official_words or not word_clues_dict:
-            print("Error in reading the word lists, check and download the relevant files")
-            return "DATA_NOT_AVAILABLE"
-
-        self.official_words = official_words
-        # self.target_words = target_words
-        self.word_clues_dict = word_clues_dict
-        self.easy_words_list = easy_words_list
-        self.medium_words_list = medium_words_list
-        self.hard_words_list = hard_words_list
-
-    def select_target_words(self, use_seed):
-        #use_seed = self.common_config["seed_to_select_target_word"]
-        number_of_target_words = self.common_config["number_of_target_words"]
-
-        target_words_test_dict = {}
-
-        data_to_read = self.read_word_lists()
-        if data_to_read == "DATA_NOT_AVAILABLE":
-            return target_words_test_dict
-
+        # Currently the already categorized words are read directly from the files
         if "high_frequency" in self.common_config["supported_word_difficulty"]:
-            if self.easy_words_list:
-                random.seed(use_seed)
-                target_words_test_dict["high_frequency"] = random.choices(
-                    self.easy_words_list, k=number_of_target_words["high_frequency"]
-                )
-
+            self.easy_words = self.read_file_contents("easy_words.txt")
         if "medium_frequency" in self.common_config["supported_word_difficulty"]:
-            if self.medium_words_list:
-                random.seed(use_seed)
-                target_words_test_dict["medium_frequency"] = random.choices(
-                    self.medium_words_list, k=number_of_target_words["medium_frequency"]
-                )
-
+            self.medium_words = self.read_file_contents("medium_words.txt")
         if "low_frequency" in self.common_config["supported_word_difficulty"]:
-            if self.hard_words_list:
-                random.seed(use_seed)
-                target_words_test_dict["low_frequency"] = random.choices(
-                    self.hard_words_list, k=number_of_target_words["low_frequency"]
-                )
+            self.hard_words = self.read_file_contents("hard_words.txt")
 
-        return target_words_test_dict
 
-    def update_experiment_dict(self, experiment, lang_keywords):
-        experiment["common_config"] = self.common_config
-        experiment["common_config"]["max_word_length"] = lang_keywords["max_word_length"]
-        experiment["use_clue"] = self.experiment_config["use_clue"]
-        experiment["use_critic"] = self.experiment_config["use_critic"]
+
+# GameConfigManager: Updates experiment/game instances and prepares prompts.
+class GameConfigManager:
+    def __init__(self, resource_manager):
+        self.resource_manager = resource_manager
+
+    def read_inital_prompt(self, use_clue, use_critic):
+        if use_critic:
+            guesser_prompt = self.resource_manager.load_template(f"resources/initial_prompts/{self.resource_manager.language}/guesser_withcritic_prompt")
+            guesser_critic_prompt = self.resource_manager.load_template(f"resources/initial_prompts/{self.resource_manager.language}/critic_prompt")
+        else:
+            template = "guesser_withclue_prompt" if use_clue else "guesser_prompt"
+            guesser_prompt = self.resource_manager.load_template(f"resources/initial_prompts/{self.resource_manager.language}/{template}")
+            guesser_critic_prompt = ""
+
+        return guesser_prompt, guesser_critic_prompt
+
+    def update_experiment_dict(self, experiment):
+        experiment["common_config"] = self.resource_manager.common_config
+        experiment["common_config"]["max_word_length"] = self.resource_manager.langconfig["max_word_length"]
+        experiment["use_clue"] = self.resource_manager.experiment_config["use_clue"]
+        experiment["use_critic"] = self.resource_manager.experiment_config["use_critic"]
 
         (
-            guesser_prompt,
-            guesser_critic_prompt,
+            experiment["guesser_prompt"],
+            experiment["guesser_critic_prompt"],
         ) = self.read_inital_prompt(experiment["use_clue"], experiment["use_critic"])
 
-        experiment["guesser_prompt"] = guesser_prompt
-        experiment["guesser_critic_prompt"] = guesser_critic_prompt
-        experiment["lang_keywords"] = lang_keywords
-        experiment["lang_keywords"]["official_words_list"] = self.official_words        
+        experiment["lang_keywords"] = self.resource_manager.langconfig
+        experiment["lang_keywords"]["official_words_list"] = self.resource_manager.official_words
 
     def update_game_instance_dict(self, game_instance, word, difficulty):
         game_instance["target_word"] = word
-        game_instance["target_word_clue"] = self.word_clues_dict[word]
+        game_instance["target_word_clue"] = self.resource_manager.word_clues_dict[word]
         game_instance["target_word_difficulty"] = difficulty
+
+
+# Utility class to parse data files with different extensions
+class FileParser:
+    @staticmethod
+    def custom_processing(filename, content):
+        parsed_data = {}
+
+        if "nytcrosswords.csv" in filename:
+            for record in content:
+                parsed_data[record[1].lower().strip()] = record[2].lower().strip()
+        elif "unigram_freq.csv" in filename:
+            content = content[1:]
+            for word, freq in content:
+                parsed_data[word.lower().strip()] = freq
+        return parsed_data
+
+    @staticmethod
+    def parse_plain(content: str, filename: str) -> []:
+        parsed_data = content.strip().split("\n")
+        parsed_data = [word.lower().strip() for word in parsed_data]
+        return parsed_data
+
+    @staticmethod
+    def parse_csv(content: str, filename: str) -> {}:
+        # custom clue processing (EN)
+        if "nytcrosswords.csv" in filename or "unigram_freq.csv" in filename:
+            return FileParser.custom_processing(filename, content)
+
+    @staticmethod
+    def parse_json(content: dict, filename: str) -> {}:
+        if isinstance(content, dict):
+            return content
+        else:
+            raise ValueError(f"{filename} is not loaded correctly!")
+
+
+# WordManager: Manages word categorization and selection (utility class)
+# todo: bring create_word_lists in or move it to dump_categorized_words?
+class WordManager:
+    @staticmethod
+    def select_target_words(easy_words: [], medium_words: [], hard_words: [],
+                            config: dict, seed: str):
+        number_of_target_words = config["number_of_target_words"]
+
+        target_words = {}
+
+        for difficulty, words_list in [("high_frequency", easy_words),
+                                       ("medium_frequency", medium_words),
+                                       ("low_frequency", hard_words)]:
+
+            if difficulty in config["supported_word_difficulty"]:
+                random.seed(seed)
+                target_words[difficulty] = random.choices(words_list, k=number_of_target_words[difficulty])
+
+        return target_words
