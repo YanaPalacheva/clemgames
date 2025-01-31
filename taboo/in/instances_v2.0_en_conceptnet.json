@@ -1,0 +1,988 @@
+{
+  "experiments": [
+    {
+      "name": "high_en",
+      "game_instances": [
+        {
+          "game_id": 0,
+          "target_word": "winter",
+          "related_word": [
+            "cold",
+            "season",
+            "snow"
+          ],
+          "target_word_stem": "winter",
+          "related_word_stem": [
+            "cold",
+            "season",
+            "snow"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 1,
+          "target_word": "independent",
+          "related_word": [
+            "autarkical",
+            "separate",
+            "strong-minded"
+          ],
+          "target_word_stem": "independ",
+          "related_word_stem": [
+            "autark",
+            "separ",
+            "strong-mind"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 2,
+          "target_word": "fly",
+          "related_word": [
+            "bug",
+            "insect",
+            "action"
+          ],
+          "target_word_stem": "fli",
+          "related_word_stem": [
+            "bug",
+            "insect",
+            "action"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 3,
+          "target_word": "fort",
+          "related_word": [
+            "meet",
+            "fortify",
+            "garrison"
+          ],
+          "target_word_stem": "fort",
+          "related_word_stem": [
+            "meet",
+            "fortifi",
+            "garrison"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 4,
+          "target_word": "jan",
+          "related_word": [
+            "nickname",
+            "January",
+            "not"
+          ],
+          "target_word_stem": "jan",
+          "related_word_stem": [
+            "nicknam",
+            "januari",
+            "not"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 5,
+          "target_word": "energy",
+          "related_word": [
+            "solar",
+            "electricity",
+            "power"
+          ],
+          "target_word_stem": "energi",
+          "related_word_stem": [
+            "solar",
+            "electr",
+            "power"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 6,
+          "target_word": "gate",
+          "related_word": [
+            "fence",
+            "opening",
+            "door"
+          ],
+          "target_word_stem": "gate",
+          "related_word_stem": [
+            "fenc",
+            "open",
+            "door"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 7,
+          "target_word": "suck",
+          "related_word": [
+            "sucking",
+            "absorb",
+            "blow"
+          ],
+          "target_word_stem": "suck",
+          "related_word_stem": [
+            "suck",
+            "absorb",
+            "blow"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 8,
+          "target_word": "int",
+          "related_word": [
+            "rpg",
+            "programming",
+            "intelligence"
+          ],
+          "target_word_stem": "int",
+          "related_word_stem": [
+            "rpg",
+            "program",
+            "intellig"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 9,
+          "target_word": "half",
+          "related_word": [
+            "football",
+            "part",
+            "basketball"
+          ],
+          "target_word_stem": "half",
+          "related_word_stem": [
+            "footbal",
+            "part",
+            "basketbal"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 10,
+          "target_word": "song",
+          "related_word": [
+            "musical",
+            "entertainment",
+            "music"
+          ],
+          "target_word_stem": "song",
+          "related_word_stem": [
+            "music",
+            "entertain",
+            "music"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 11,
+          "target_word": "consist",
+          "related_word": [
+            "be",
+            "dwell",
+            "match"
+          ],
+          "target_word_stem": "consist",
+          "related_word_stem": [
+            "be",
+            "dwell",
+            "match"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 12,
+          "target_word": "sure",
+          "related_word": [
+            "indisputable",
+            "certain",
+            "trusted"
+          ],
+          "target_word_stem": "sure",
+          "related_word_stem": [
+            "indisput",
+            "certain",
+            "trust"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 13,
+          "target_word": "pool",
+          "related_word": [
+            "group",
+            "swiming",
+            "Swimming"
+          ],
+          "target_word_stem": "pool",
+          "related_word_stem": [
+            "group",
+            "swime",
+            "swim"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 14,
+          "target_word": "council",
+          "related_word": [
+            "group",
+            "government",
+            "decide"
+          ],
+          "target_word_stem": "council",
+          "related_word_stem": [
+            "group",
+            "govern",
+            "decid"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 15,
+          "target_word": "sexy",
+          "related_word": [
+            "toothsome",
+            "titillating",
+            "autoerotic"
+          ],
+          "target_word_stem": "sexi",
+          "related_word_stem": [
+            "toothsom",
+            "titil",
+            "autoerot"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 16,
+          "target_word": "word",
+          "related_word": [
+            "sentence",
+            "language",
+            "unit"
+          ],
+          "target_word_stem": "word",
+          "related_word_stem": [
+            "sentenc",
+            "languag",
+            "unit"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 17,
+          "target_word": "care",
+          "related_word": [
+            "love",
+            "loving",
+            "concern"
+          ],
+          "target_word_stem": "care",
+          "related_word_stem": [
+            "love",
+            "love",
+            "concern"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 18,
+          "target_word": "market",
+          "related_word": [
+            "shopping",
+            "store",
+            "place"
+          ],
+          "target_word_stem": "market",
+          "related_word_stem": [
+            "shop",
+            "store",
+            "place"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 19,
+          "target_word": "little",
+          "related_word": [
+            "tiny",
+            "small",
+            "big"
+          ],
+          "target_word_stem": "littl",
+          "related_word_stem": [
+            "tini",
+            "small",
+            "big"
+          ],
+          "lang": "en"
+        }
+      ],
+      "max_turns": 3,
+      "describer_initial_prompt": "You are playing a collaborative word guessing game in which you have to describe a target word for another player to guess.\n\nRules:\n(a) You have to reply in the form: CLUE: <some text>. Guesses from the other player will start with GUESS.\n(b) You cannot use the target word itself, parts or morphological variants of it in your description.\n(c) In addition, the same rules apply for related words which are provided below.\n\nEnd conditions:\n(i) If you use the target word or a related word in your description, then you lose.\n(ii) If the other player can guess the target word in $N$ tries, you both win.\n\nLet us start.\n\nThis is the target word that you need to describe and that the other player needs to guess:\n\n$TARGET_WORD$\n\nRelated words are:\n\n$REL_WORD$\n\nImportant: You are under time pressure, give short descriptions that are to the point!",
+      "guesser_initial_prompt": "You are playing a collaborative word guessing game in which you have to guess a target word that another player describes to you.\n\nYou can make one guess at each trial. You win when you guess the target word. You lose when you cannot guess it in $N$ tries.\n\nAfter each trial you will get a new hint from the other player which starts with CLUE.\n\nMake your guesses by just saying the word using the following form: GUESS: <a word>\n\nLet us start.\n"
+    },
+    {
+      "name": "medium_en",
+      "game_instances": [
+        {
+          "game_id": 0,
+          "target_word": "ordinary",
+          "related_word": [
+            "normal",
+            "common",
+            "plain"
+          ],
+          "target_word_stem": "ordinari",
+          "related_word_stem": [
+            "normal",
+            "common",
+            "plain"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 1,
+          "target_word": "chicken",
+          "related_word": [
+            "rooster",
+            "hen",
+            "bird"
+          ],
+          "target_word_stem": "chicken",
+          "related_word_stem": [
+            "rooster",
+            "hen",
+            "bird"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 2,
+          "target_word": "impose",
+          "related_word": [
+            "inflict",
+            "levy",
+            "enforce"
+          ],
+          "target_word_stem": "impos",
+          "related_word_stem": [
+            "inflict",
+            "levi",
+            "enforc"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 3,
+          "target_word": "nelson",
+          "related_word": [
+            "wrestling",
+            "hold",
+            "nell"
+          ],
+          "target_word_stem": "nelson",
+          "related_word_stem": [
+            "wrestl",
+            "hold",
+            "nell"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 4,
+          "target_word": "rough",
+          "related_word": [
+            "sensation",
+            "ciliated",
+            "roughish"
+          ],
+          "target_word_stem": "rough",
+          "related_word_stem": [
+            "sensat",
+            "ciliat",
+            "roughish"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 5,
+          "target_word": "chapel",
+          "related_word": [
+            "praying",
+            "worshipping",
+            "meditation"
+          ],
+          "target_word_stem": "chapel",
+          "related_word_stem": [
+            "pray",
+            "worship",
+            "medit"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 6,
+          "target_word": "translate",
+          "related_word": [
+            "physics",
+            "genetics",
+            "equal"
+          ],
+          "target_word_stem": "translat",
+          "related_word_stem": [
+            "physic",
+            "genet",
+            "equal"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 7,
+          "target_word": "primarily",
+          "related_word": [
+            "principally",
+            "focus",
+            "primary"
+          ],
+          "target_word_stem": "primarili",
+          "related_word_stem": [
+            "princip",
+            "focus",
+            "primari"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 8,
+          "target_word": "retrieve",
+          "related_word": [
+            "recover",
+            "remember",
+            "bring"
+          ],
+          "target_word_stem": "retriev",
+          "related_word_stem": [
+            "recov",
+            "rememb",
+            "bring"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 9,
+          "target_word": "fault",
+          "related_word": [
+            "electronics",
+            "geology",
+            "blame"
+          ],
+          "target_word_stem": "fault",
+          "related_word_stem": [
+            "electron",
+            "geolog",
+            "blame"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 10,
+          "target_word": "karen",
+          "related_word": [
+            "human",
+            "historical",
+            "Tibeto-Burman"
+          ],
+          "target_word_stem": "karen",
+          "related_word_stem": [
+            "human",
+            "histor",
+            "tibeto-burman"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 11,
+          "target_word": "ferry",
+          "related_word": [
+            "cargo",
+            "bring",
+            "boat"
+          ],
+          "target_word_stem": "ferri",
+          "related_word_stem": [
+            "cargo",
+            "bring",
+            "boat"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 12,
+          "target_word": "coastal",
+          "related_word": [
+            "inshore",
+            "coastwise",
+            "maritime"
+          ],
+          "target_word_stem": "coastal",
+          "related_word_stem": [
+            "inshor",
+            "coastwis",
+            "maritim"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 13,
+          "target_word": "ordinance",
+          "related_word": [
+            "law",
+            "regulation",
+            "ordination"
+          ],
+          "target_word_stem": "ordin",
+          "related_word_stem": [
+            "law",
+            "regul",
+            "ordin"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 14,
+          "target_word": "setup",
+          "related_word": [
+            "apparatus",
+            "manner",
+            "frame-up"
+          ],
+          "target_word_stem": "setup",
+          "related_word_stem": [
+            "apparatus",
+            "manner",
+            "frame-up"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 15,
+          "target_word": "institutional",
+          "related_word": [
+            "institution",
+            "uninteresting",
+            "institutionalised"
+          ],
+          "target_word_stem": "institut",
+          "related_word_stem": [
+            "institut",
+            "uninterest",
+            "institutionalis"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 16,
+          "target_word": "colored",
+          "related_word": [
+            "indigo",
+            "garnet-coloured",
+            "straw-coloured"
+          ],
+          "target_word_stem": "color",
+          "related_word_stem": [
+            "indigo",
+            "garnet-colour",
+            "straw-colour"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 17,
+          "target_word": "dozen",
+          "related_word": [
+            "hundredweight",
+            "12",
+            "twelve"
+          ],
+          "target_word_stem": "dozen",
+          "related_word_stem": [
+            "hundredweight",
+            "12",
+            "twelv"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 18,
+          "target_word": "debug",
+          "related_word": [
+            "bug",
+            "electronic",
+            "correct"
+          ],
+          "target_word_stem": "debug",
+          "related_word_stem": [
+            "bug",
+            "electron",
+            "correct"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 19,
+          "target_word": "dependent",
+          "related_word": [
+            "subordinate",
+            "parasitical",
+            "dependant"
+          ],
+          "target_word_stem": "depend",
+          "related_word_stem": [
+            "subordin",
+            "parasit",
+            "depend"
+          ],
+          "lang": "en"
+        }
+      ],
+      "max_turns": 3,
+      "describer_initial_prompt": "You are playing a collaborative word guessing game in which you have to describe a target word for another player to guess.\n\nRules:\n(a) You have to reply in the form: CLUE: <some text>. Guesses from the other player will start with GUESS.\n(b) You cannot use the target word itself, parts or morphological variants of it in your description.\n(c) In addition, the same rules apply for related words which are provided below.\n\nEnd conditions:\n(i) If you use the target word or a related word in your description, then you lose.\n(ii) If the other player can guess the target word in $N$ tries, you both win.\n\nLet us start.\n\nThis is the target word that you need to describe and that the other player needs to guess:\n\n$TARGET_WORD$\n\nRelated words are:\n\n$REL_WORD$\n\nImportant: You are under time pressure, give short descriptions that are to the point!",
+      "guesser_initial_prompt": "You are playing a collaborative word guessing game in which you have to guess a target word that another player describes to you.\n\nYou can make one guess at each trial. You win when you guess the target word. You lose when you cannot guess it in $N$ tries.\n\nAfter each trial you will get a new hint from the other player which starts with CLUE.\n\nMake your guesses by just saying the word using the following form: GUESS: <a word>\n\nLet us start.\n"
+    },
+    {
+      "name": "low_en",
+      "game_instances": [
+        {
+          "game_id": 0,
+          "target_word": "chan",
+          "related_word": [
+            "irc",
+            "internet",
+            "chinese"
+          ],
+          "target_word_stem": "chan",
+          "related_word_stem": [
+            "irc",
+            "internet",
+            "chines"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 1,
+          "target_word": "rifle",
+          "related_word": [
+            "long",
+            "gun",
+            "shooting"
+          ],
+          "target_word_stem": "rifl",
+          "related_word_stem": [
+            "long",
+            "gun",
+            "shoot"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 2,
+          "target_word": "ugly",
+          "related_word": [
+            "displeasing",
+            "despicable",
+            "unattractive"
+          ],
+          "target_word_stem": "ugli",
+          "related_word_stem": [
+            "displeas",
+            "despic",
+            "unattract"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 3,
+          "target_word": "feather",
+          "related_word": [
+            "rotation",
+            "fledge",
+            "bird"
+          ],
+          "target_word_stem": "feather",
+          "related_word_stem": [
+            "rotat",
+            "fledg",
+            "bird"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 4,
+          "target_word": "hatch",
+          "related_word": [
+            "hatchback",
+            "inlay",
+            "shading"
+          ],
+          "target_word_stem": "hatch",
+          "related_word_stem": [
+            "hatchback",
+            "inlay",
+            "shade"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 5,
+          "target_word": "richardson",
+          "related_word": [
+            "texas",
+            "richard",
+            "usa"
+          ],
+          "target_word_stem": "richardson",
+          "related_word_stem": [
+            "texa",
+            "richard",
+            "usa"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 6,
+          "target_word": "stranger",
+          "related_word": [
+            "person",
+            "know",
+            "meeting"
+          ],
+          "target_word_stem": "stranger",
+          "related_word_stem": [
+            "person",
+            "know",
+            "meet"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 7,
+          "target_word": "bradley",
+          "related_word": [
+            "brad",
+            "bradlea",
+            "england"
+          ],
+          "target_word_stem": "bradley",
+          "related_word_stem": [
+            "brad",
+            "bradlea",
+            "england"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 8,
+          "target_word": "gibson",
+          "related_word": [
+            "vermouth",
+            "gin",
+            "son"
+          ],
+          "target_word_stem": "gibson",
+          "related_word_stem": [
+            "vermouth",
+            "gin",
+            "son"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 9,
+          "target_word": "angry",
+          "related_word": [
+            "wrathful",
+            "black",
+            "unhealthy"
+          ],
+          "target_word_stem": "angri",
+          "related_word_stem": [
+            "wrath",
+            "black",
+            "unhealthi"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 10,
+          "target_word": "harmful",
+          "related_word": [
+            "mischievous",
+            "bruising",
+            "harm"
+          ],
+          "target_word_stem": "harm",
+          "related_word_stem": [
+            "mischiev",
+            "bruis",
+            "harm"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 11,
+          "target_word": "brandon",
+          "related_word": [
+            "colorado",
+            "florida",
+            "england"
+          ],
+          "target_word_stem": "brandon",
+          "related_word_stem": [
+            "colorado",
+            "florida",
+            "england"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 12,
+          "target_word": "hyundai",
+          "related_word": [
+            "seoul",
+            "company",
+            "car"
+          ],
+          "target_word_stem": "hyundai",
+          "related_word_stem": [
+            "seoul",
+            "compani",
+            "car"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 13,
+          "target_word": "surrey",
+          "related_word": [
+            "carriage",
+            "motorized",
+            "England"
+          ],
+          "target_word_stem": "surrey",
+          "related_word_stem": [
+            "carriag",
+            "motor",
+            "england"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 14,
+          "target_word": "parse",
+          "related_word": [
+            "grammar",
+            "closely",
+            "analyze"
+          ],
+          "target_word_stem": "pars",
+          "related_word_stem": [
+            "grammar",
+            "close",
+            "analyz"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 15,
+          "target_word": "halifax",
+          "related_word": [
+            "yorkshire",
+            "virginia",
+            "fax"
+          ],
+          "target_word_stem": "halifax",
+          "related_word_stem": [
+            "yorkshir",
+            "virginia",
+            "fax"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 16,
+          "target_word": "characterization",
+          "related_word": [
+            "description",
+            "characterize",
+            "portrayal"
+          ],
+          "target_word_stem": "character",
+          "related_word_stem": [
+            "descript",
+            "character",
+            "portray"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 17,
+          "target_word": "landmark",
+          "related_word": [
+            "juncture",
+            "position",
+            "surgery"
+          ],
+          "target_word_stem": "landmark",
+          "related_word_stem": [
+            "junctur",
+            "posit",
+            "surgeri"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 18,
+          "target_word": "troubleshoot",
+          "related_word": [
+            "trouble-shoot",
+            "troubleshooting",
+            "debug"
+          ],
+          "target_word_stem": "troubleshoot",
+          "related_word_stem": [
+            "trouble-shoot",
+            "troubleshoot",
+            "debug"
+          ],
+          "lang": "en"
+        },
+        {
+          "game_id": 19,
+          "target_word": "realistic",
+          "related_word": [
+            "practical",
+            "hard-nosed",
+            "down-to-earth"
+          ],
+          "target_word_stem": "realist",
+          "related_word_stem": [
+            "practic",
+            "hard-nos",
+            "down-to-earth"
+          ],
+          "lang": "en"
+        }
+      ],
+      "max_turns": 3,
+      "describer_initial_prompt": "You are playing a collaborative word guessing game in which you have to describe a target word for another player to guess.\n\nRules:\n(a) You have to reply in the form: CLUE: <some text>. Guesses from the other player will start with GUESS.\n(b) You cannot use the target word itself, parts or morphological variants of it in your description.\n(c) In addition, the same rules apply for related words which are provided below.\n\nEnd conditions:\n(i) If you use the target word or a related word in your description, then you lose.\n(ii) If the other player can guess the target word in $N$ tries, you both win.\n\nLet us start.\n\nThis is the target word that you need to describe and that the other player needs to guess:\n\n$TARGET_WORD$\n\nRelated words are:\n\n$REL_WORD$\n\nImportant: You are under time pressure, give short descriptions that are to the point!",
+      "guesser_initial_prompt": "You are playing a collaborative word guessing game in which you have to guess a target word that another player describes to you.\n\nYou can make one guess at each trial. You win when you guess the target word. You lose when you cannot guess it in $N$ tries.\n\nAfter each trial you will get a new hint from the other player which starts with CLUE.\n\nMake your guesses by just saying the word using the following form: GUESS: <a word>\n\nLet us start.\n"
+    }
+  ]
+}
