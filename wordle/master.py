@@ -272,7 +272,7 @@ class WordleGameMaster(GameMaster):
             else:
                 if status == "progress":
                     # content = f"agreement = {answer['agreement']}\nexplanation = {answer['explanation']}"
-                    if answer["agreement"] == "yes":
+                    if answer["agreement"] == self.config['lang_keywords']['agreement_match_keywords_lang'][0]:
                         content = "Critic agrees with the Guesser -- Sharing the critic's explanation with the guesser"
                     else:
                         content = "Critic does not agree with the Guesser -- Sharing the critic's explanation with the guesser"

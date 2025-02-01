@@ -58,10 +58,10 @@
             "explanation_lang": "пояснение:",
             "explanataion_details_lang": "детали",
             "guess_feedback_lang": "guess_feedback:",
-            "agreement_lang": "обоснование:",
+            "agreement_lang": "согласие:",
             "agreement_word_lang": "да или нет",
-            "guess_agreement_lang": "guess_agreement:",
-            "agreement_explanation_lang": "agreement_explanation:",
+            "guess_agreement_lang": "согласие:",
+            "agreement_explanation_lang": "объяснение:",
             "agreement_match_keywords_lang": ["да", "нет"],
             "data_sources": {
                       "official_words": {
