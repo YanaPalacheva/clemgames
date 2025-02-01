@@ -9,7 +9,8 @@ from clemcore.clemgame.metrics import METRIC_ABORTED, METRIC_SUCCESS, METRIC_LOS
     METRIC_REQUEST_COUNT_VIOLATED, METRIC_REQUEST_COUNT_PARSED, METRIC_REQUEST_SUCCESS, BENCH_SCORE
 from clemcore.utils import file_utils, string_utils
 
-from taboo.utils.instance_utils import InstanceUtils
+# from taboo.utils.instance_utils import InstanceUtils
+from utils.instance_utils import InstanceUtils
 
 
 logger = logging.getLogger(__name__)
@@ -105,12 +106,14 @@ class Taboo(DialogueGameMaster):
     def _validate_player_response(self, player: Player, utterance: str) -> bool:
         if player == self.guesser:
             # validate response format
-            if not utterance.startswith("GUESS:"): # todo multilingual: translate the service prefixes?
+            guess_tag = self.utils.get_guess_tag()
+
+            if not utterance.startswith(f"{guess_tag}:"):
                 self.invalid_response = True
                 return False
             self.log_to_self("valid response", "continue")
             # extract guess word
-            guess_word = utterance.replace("GUESS:", "")
+            guess_word = utterance.replace(f"{guess_tag}:", "")
             guess_word = guess_word.strip()
             guess_word = guess_word.lower()
             guess_word = string_utils.remove_punctuation(guess_word)
@@ -118,7 +121,8 @@ class Taboo(DialogueGameMaster):
             self.log_to_self("valid guess", self.guess_word)
         if player == self.describer:
             # validate response format
-            if not utterance.startswith("CLUE:"):  # didn't translate service words in the prompts
+            clue_tag = self.utils.get_clue_tag()
+            if not utterance.startswith(f"{clue_tag}:"):
                 self.invalid_response = True
                 return False
             self.log_to_self("valid response", "continue")
@@ -152,8 +156,9 @@ class Taboo(DialogueGameMaster):
 
         stopwords = self.utils.get_stopwords()
         stemmer = self.utils.get_stemmer()
+        clue_tag = self.utils.get_clue_tag()
 
-        clue = clue.replace("CLUE:", "").strip().lower()
+        clue = clue.replace(f"{clue_tag}:", "").strip().lower()
         clue = string_utils.remove_punctuation(clue)
         clue_words = clue.split(" ")
         clue_words = [clue_word for clue_word in clue_words if clue_word not in stopwords]

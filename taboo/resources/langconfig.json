@@ -2,11 +2,15 @@
     "en": {
         "full_language": "english",
         "stopwords_source": "nltk",
-        "spacy_model": "en_core_web_sm"
+        "spacy_model": "en_core_web_sm",
+        "clue_tag": "CLUE",
+        "guess_tag": "GUESS"
     },
     "ru": {
         "full_language": "russian",
         "stopwords_source": "nltk",
-        "spacy_model": "ru_core_news_sm"
+        "spacy_model": "ru_core_news_sm",
+        "clue_tag": "ПОДСКАЗКА",
+        "guess_tag": "ДОГАДКА"
     }
 }

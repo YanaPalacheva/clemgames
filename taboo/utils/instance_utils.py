@@ -58,6 +58,12 @@ class InstanceUtils(GameResourceLocator):
 
         return stopwords_list
 
+    def get_clue_tag(self):
+        return self.lang_config.get("clue_tag")
+
+    def get_guess_tag(self):
+        return self.lang_config.get("guess_tag")
+
     def load_manual_related_words(self) -> {}:
         if not os.path.exists(self.manual_related_words_path):
             print(f"No manual related words found for language {self.language}!")
